@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "covergedev"
+  },
+  "targets": {
+    "covergedev": {
+      "hosting": {
+        "covergedev": [
+          "covergedev"
+        ]
+      }
+    }
   }
 }
