@@ -1,6 +1,0 @@
-<form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" *ngIf="!confirmation">
-    <input type="email" id="email" placeholder="Enter Your Email" formControlName="email" required />
-    <button type="submit" class="btn btn-primary" style="margin-left: 10px;"[disabled]="!registrationForm.valid" >Submit</button>
-</form>
-<p *ngIf="confirmation">Thanks! We'll let you know when we launch.</p>
-<p *ngIf="!confirmation">Enter your email to be notified when we launch</p>

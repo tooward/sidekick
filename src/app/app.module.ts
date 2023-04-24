@@ -5,29 +5,41 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { NgxTypedJsModule } from 'ngx-typed-js';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { RegistrationComponent } from './registration/registration.component';
+import { RegistrationComponent } from './components/registration/registration.component';
 import { initializeApp,provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
-import { provideAuth,getAuth } from '@angular/fire/auth';
-import { provideFirestore,getFirestore } from '@angular/fire/firestore';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { SignInComponent } from './components/sign-in/sign-in.component';
-import { SignUpComponent } from './components/sign-up/sign-up.component';
-import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
-import { VerifyEmailComponent } from './components/verify-email/verify-email.component';
+import { getAuth, provideAuth } from '@angular/fire/auth';
+import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { UserComponent } from './components/usermgt/user/user.component';
+import { SignInComponent } from './components/usermgt/sign-in/sign-in.component';
+import { SignUpComponent } from './components/usermgt/sign-up/sign-up.component';
+import { ForgotPasswordComponent } from './components/usermgt/forgot-password/forgot-password.component';
+import { VerifyEmailComponent } from './components/usermgt/verify-email/verify-email.component';
 import { AuthService } from "./shared/services/auth.service";
 
 import { AngularFireModule } from "@angular/fire/compat";
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { HomeComponent } from './components/home/home.component';
+import { HeaderComponent } from './components/header/header.component';
+import { LibraryComponent } from './components/library/library.component';
+import { CommentComponent } from './components/comments/comment/comment.component';
+import { CommentEditComponent } from './components/comments/comment-edit/comment-edit.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     RegistrationComponent,
-    DashboardComponent,
+    UserComponent,
     SignInComponent,
     SignUpComponent,
     ForgotPasswordComponent,
-    VerifyEmailComponent
+    VerifyEmailComponent,
+    PageNotFoundComponent,
+    HomeComponent,
+    HeaderComponent,
+    LibraryComponent,
+    CommentComponent,
+    CommentEditComponent
   ],
   imports: [
     BrowserModule,
@@ -35,9 +47,9 @@ import { AngularFireModule } from "@angular/fire/compat";
     FormsModule,
     ReactiveFormsModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
-    AngularFireModule.initializeApp(environment.firebase),
-    provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
+    provideAuth(() => getAuth()),
+    AngularFireModule.initializeApp(environment.firebase),
     NgxTypedJsModule
   ],
   providers: [
