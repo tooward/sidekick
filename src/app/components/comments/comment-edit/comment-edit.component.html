@@ -1,0 +1,12 @@
+    <form *ngIf="commentForm" (ngSubmit)="onSubmit()" [formGroup]="commentForm" autocomplete="off">
+
+        <!-- COMMENT FIELD -->
+        <textarea rows="4" formControlName="comment" type="text" class="form-control" id="comment" name="comment" placeholder="Commment">
+        </textarea>
+
+        <!-- URL FIELD -->
+        <input formControlName="url" type="text" class="form-control" id="url" name="url" required placeholder="URL" />
+
+        <button type="submit" id="button" class="btn btn-success" [disabled]="!commentForm.valid">Save</button>
+
+    </form>
