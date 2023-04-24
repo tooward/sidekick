@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Firestore, collection, collectionData, addDoc } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { Registration } from './registration';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-registration',
@@ -21,8 +21,8 @@ export class RegistrationComponent implements OnInit {
   confirmation: Boolean = false;
 
 // Form related code
-  registrationForm = new FormGroup({
-    email: new FormControl('', Validators.email)
+  registrationForm = new UntypedFormGroup({
+    email: new UntypedFormControl('', Validators.email)
     });
 
   constructor(private firestore: Firestore) {

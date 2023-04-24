@@ -1,7 +1,7 @@
 // Angular imports
 import { Component, OnInit, Input, isDevMode } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Injectable, NgZone, inject } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 
@@ -26,7 +26,7 @@ export class CommentEditComponent implements OnInit {
   private auth: Auth = inject(Auth);
 
   // model variables
-  commentForm: FormGroup = new FormGroup({});
+  commentForm: UntypedFormGroup = new UntypedFormGroup({});
   @Input() model: OComment = new OComment();
   commentObservableSubscription$: Subscription;
   modelRetrieved: boolean = false;
@@ -91,11 +91,11 @@ export class CommentEditComponent implements OnInit {
   }
 
   buildForm(){
-    this.commentForm  = new FormGroup({
-      comment: new FormControl(''),
-      labels: new FormControl(''),
-      favorite: new FormControl(''),
-      url: new FormControl('', Validators.required),
+    this.commentForm  = new UntypedFormGroup({
+      comment: new UntypedFormControl(''),
+      labels: new UntypedFormControl(''),
+      favorite: new UntypedFormControl(''),
+      url: new UntypedFormControl('', Validators.required),
     });
   }
 
