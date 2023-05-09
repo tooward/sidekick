@@ -70,7 +70,7 @@ firestore: Firestore = inject(Firestore);
         console.log("Date saving as : " + JSON.stringify(comment.savedTime));  
         console.log("Document JSON: " + JSON.stringify(comment));
   
-        try{
+        try {
           return addDoc(collection(this.firestore, this.commentsCollectionReference), JSON.parse( JSON.stringify(comment)));
         }
         catch(err){
@@ -211,7 +211,7 @@ async getCommentsPaginated(recordsPerPage: number, userId: string, startAfterRec
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots
-        console.log(doc.id, " => ", doc.data());
+        // console.log(doc.id, " => ", doc.data());
       });
       
       cCollection = querySnapshot.docs.map(a => {

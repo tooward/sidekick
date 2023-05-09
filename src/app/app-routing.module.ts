@@ -12,6 +12,7 @@ import { CommentComponent } from './components/comments/comment/comment.componen
 import { CommentEditComponent } from './components/comments/comment-edit/comment-edit.component';
 import { CommentlistComponent } from './components/comments/comment-list/comment-list.component';
 import { AuthGuard } from './shared/guard/auth.guard';
+import { TestuiComponent } from './components/comments/test/testui.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -24,6 +25,7 @@ const routes: Routes = [
   { path: 'edit/:id', component: CommentEditComponent, canActivate: [AuthGuard] },
   { path: 'edit', component: CommentEditComponent, canActivate: [AuthGuard] },
   { path: 'comments', component: CommentlistComponent, canActivate: [AuthGuard] },
+  { path: 'test', component: TestuiComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent }
 ];

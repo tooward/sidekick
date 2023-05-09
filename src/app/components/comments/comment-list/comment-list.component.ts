@@ -61,14 +61,14 @@ export class CommentlistComponent implements OnInit {
       this.userLoggedIn = true;
       console.log("ngOnInit() User IS signed in");
     }
-    else{
+    else {
       console.log("ngOnInit() User is NOT signed in.");
     }
 
     this.auth.onAuthStateChanged((user) => {
       //      if (this.authService.userData !== null && this.authService.isLoggedIn) {
         if (user) {
-          console.log("constructor() User is signed in as: " + user.uid );
+          console.log("CommentListComponent - constructor() User is signed in as: " + user.uid );
           // get the current state for the user
           this.user = user;
           this.userLoggedIn = true;
@@ -197,7 +197,9 @@ export class CommentlistComponent implements OnInit {
                                          this.pagination.sortBy)
                    .then(
                     res => {
-                      console.log("Query paginated with query records per page: " + this.pagination.queryRecordsPerPage + " and page: " + this.pagination.currentPage);
+                      console.log("Comment-List - getCommentsPaginated: Query paginated with query records per page: " + this.pagination.queryRecordsPerPage + " and page: " + this.pagination.currentPage);
+                      console.log("Comment-List - getCommentsPaginated: Query paginated with startAfterRecord: " + this.pagination.startAfterRecord);
+                      console.log("Comment-List - getCommentsPaginated: Query returned records: " + res.length);
 
                       // don't display first on next page record, if exists
                       this.fbcomments = res.slice(0, (this.pagination.displayRecordsPerPage));
@@ -222,7 +224,7 @@ export class CommentlistComponent implements OnInit {
                     }
                     );
     } else {
-      console.error("getCommentsPaginated() - Auth user NOT logged in");
+      console.error("CommentlistComponent - getCommentsPaginated(): user NOT logged in");
       this.loading=false;
     }
   } // getCommentsPaginated()

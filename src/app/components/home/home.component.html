@@ -11,10 +11,19 @@
     <div class="col"></div>
 </div>
 
-<div class="row">
+<div *ngIf="this.isLoggedIn" class="row">
+        <div class="col">
+        </div>
+        <div class="col">
+            Go forth and comment!
+        </div>
     <div class="col">
     </div>
-    
+</div>
+
+<div *ngIf="!this.isLoggedIn" class="row">
+    <div class="col">
+    </div>
     <div class="col">
         <app-sign-in></app-sign-in>
     </div>
@@ -22,7 +31,6 @@
     <div class="col">
         <app-sign-up></app-sign-up>
     </div>
-
-    <div class="col">
-    </div>
+<div class="col">
+</div>
 </div>

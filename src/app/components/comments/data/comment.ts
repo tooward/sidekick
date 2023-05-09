@@ -1,12 +1,16 @@
+import { oPlace } from "./place";
+
 export interface iOComment {
     id: string;
     userId: string;
     userName?: string;
     userAvatar?: string;
     comment: string;
+//    sharing?: CommentShare[];
     url: string;
     domain?: string;
     labels?: string[];
+    location?: oPlace;
     favorite?: boolean;
     savedTime: Date;
     lastUpdateTime?: Date;
@@ -18,12 +22,15 @@ export class OComment implements iOComment {
     userName?: string;
     userAvatar?: string;
     comment: string = "";
+//    sharing?: CommentShare[];
     url: string = "";
     domain?: string;
     labels?: string[];
+    location?: oPlace;
     favorite?: boolean;
     savedTime: Date = new Date();
     lastUpdateTime?: Date  = new Date();
+
 
     getSavedTimeAsEpoch(): number | undefined {
         if (this.savedTime){
@@ -61,8 +68,8 @@ export class OComment implements iOComment {
         // convert the Date objects to epoch time for storage in Firestore
         this.lastUpdateTime = new Date(this.lastUpdateTime.getTime());
 
-//        this.lastUpdateTime.toJSON = function(){ return this.getTime(); }
-//        this.savedTime.toJSON = function(){ return this.getTime(); }
+        // this.lastUpdateTime.toJSON = function(){ return this.getTime(); }
+        // this.savedTime.toJSON = function(){ return this.getTime(); }
         let result: JSON = JSON.parse( JSON.stringify(this));
  
         console.log("JSON for place: " + result);

@@ -23,6 +23,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { CommentComponent } from './components/comments/comment/comment.component';
 import { CommentEditComponent } from './components/comments/comment-edit/comment-edit.component';
 import { CommentlistComponent } from './components/comments/comment-list/comment-list.component';
+import { TestuiComponent } from './components/comments/test/testui.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import { CommentlistComponent } from './components/comments/comment-list/comment
     HeaderComponent,
     CommentComponent,
     CommentEditComponent,
-    CommentlistComponent
+    CommentlistComponent,
+    TestuiComponent
   ],
   imports: [
     BrowserModule,

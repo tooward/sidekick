@@ -46,7 +46,7 @@
         
         <br>
         
-        <!-- PAGINATION DEBUG
+        <!-- PAGINATION DEBUG -->
         <div *ngIf="this.pagination.userPaginationRecord" style="clear:both;">
             <h3>Pagination variables: userPaginationRecord</h3>
             <p>Current page:  {{this.pagination.userPaginationRecord.currentDisplayPage}}</p>
@@ -57,7 +57,6 @@
             <ul *ngFor="let pages of this.pagination.startAfterRecords; index as i;">
                 <li>{{i}}: {{pages}}</li>
             </ul>
-            
         </div>
         
         <div *ngIf="this.pagination" style="clear:both;">
@@ -66,10 +65,11 @@
             <p>Disable next: {{this.pagination.disableNext}}</p>
             <p>Disable previous: {{this.pagination.disablePrevious}}</p>
             <p>StartAfter this page: {{this.pagination.startAfterRecord}}</p>
+            <p>Total Pages: {{this.pagination.totalPages}}</p>
         </div>
 
         <br>
         <br>
-        -->
+        <!-- -->
     </div>
 </div>

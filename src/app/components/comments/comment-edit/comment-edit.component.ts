@@ -109,7 +109,7 @@ export class CommentEditComponent implements OnInit {
         console.log("Updated data: " + this.model);
       }
         // redirect to read view
-        this.router.navigate(['comment', this.model.id] );
+        this.router.navigate(['comments'] );
     } else {
       throw new Error("Please login and try to save again.");
     }

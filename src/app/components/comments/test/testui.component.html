@@ -1,0 +1,14 @@
+  
+  <h2>Test Users</h2>
+  <div class="content-container">
+    <button mat-raised-button (click)="loadTestData()">Load test data</button>
+  </div>
+
+  <div *ngIf="this.testUsersComments">
+    <ul>
+      <div *ngFor="let tu of this.testUsersComments">
+        <p>Email: {{tu.user.email}}</p>
+        <p>Password: {{tu.user.password}}</p>
+      </div>
+    </ul>
+</div>
