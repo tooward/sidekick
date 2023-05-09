@@ -1,0 +1,75 @@
+<div class="row">
+    <div class="col">
+
+        <div *ngIf="loading" class="flexbox-parent">
+            <div layout="row" layout-align="center center" style="min-height: 300px">
+                Loading
+            </div>
+          </div>
+
+        <div *ngIf="fbcomments && !loading">
+            <div *ngFor="let comment of fbcomments">
+                <app-comment [comment]= comment ></app-comment>
+                <a (click)="delete(comment)">
+                    <img src="assets/images/delete.svg" alt="delete" height="20" width="20">
+                </a>
+            </div>
+        </div>
+
+        <div *ngIf="(!fbcomments || (fbcomments.length === 0))  && !loading">
+                <h2>You haven't saved anything yet.</h2>
+                <div>Go forth and comment!</div>
+        </div>
+
+        <div *ngIf="this.pagination.pagesEnabled" class="pagination">
+            <a *ngIf="this.pagination && !this.pagination.disablePrevious" (click)="getCommentsPaginated(null, navdir.back)">
+                navigate_before
+            </a>
+
+            <div *ngIf="this.pagination.userPaginationRecord.pagesStartAfterRecord 
+                     && this.pagination.userPaginationRecord.pagesStartAfterRecord.length > 1">
+                <div *ngFor="let pages of this.pagination.userPaginationRecord.pagesStartAfterRecord; index as i;">
+                    <a *ngIf="this.pagination.userPaginationRecord.currentDisplayPage !== i+1"
+                        (click)="getCommentsPaginated(null, null, i+1)">
+                        {{i+1}}
+                    </a>
+                    <a *ngIf="this.pagination.userPaginationRecord.currentDisplayPage === i+1" class="active">
+                        {{i+1}}
+                    </a>
+                </div>
+            </div>
+
+            <a *ngIf="this.pagination && !this.pagination.disableNext" (click)="getCommentsPaginated(null, navdir.forward)">
+                navigate_next
+            </a>
+        </div>
+        
+        <br>
+        
+        <!-- PAGINATION DEBUG
+        <div *ngIf="this.pagination.userPaginationRecord" style="clear:both;">
+            <h3>Pagination variables: userPaginationRecord</h3>
+            <p>Current page:  {{this.pagination.userPaginationRecord.currentDisplayPage}}</p>
+            <p>Total pages:   {{this.pagination.userPaginationRecord.totalPages}}</p>
+            <p>Total records: {{this.pagination.userPaginationRecord.totalRecords}}</p>
+
+            <p>StartAfter records:</p> 
+            <ul *ngFor="let pages of this.pagination.startAfterRecords; index as i;">
+                <li>{{i}}: {{pages}}</li>
+            </ul>
+            
+        </div>
+        
+        <div *ngIf="this.pagination" style="clear:both;">
+            <h3>Pagination variables: firestorePagination</h3>
+            <p>Current page:  {{this.pagination.currentPage}}</p>
+            <p>Disable next: {{this.pagination.disableNext}}</p>
+            <p>Disable previous: {{this.pagination.disablePrevious}}</p>
+            <p>StartAfter this page: {{this.pagination.startAfterRecord}}</p>
+        </div>
+
+        <br>
+        <br>
+        -->
+    </div>
+</div>
