@@ -1,5 +1,14 @@
 Development Notes
 
+
+Need to find out why Anglar Fire is causing build issues. Used this workaround but need to switch back.
+https://github.com/angular/angularfire/issues/3290
+
+Change tsconfig:
+
+"strict": false,
+"skipLibCheck": true,
+
 If want to put this in as a bookmarklet need to read up on the build changes that I made in Ionoi.
 https://www.npmjs.com/package/@angular-devkit/build-angular
 

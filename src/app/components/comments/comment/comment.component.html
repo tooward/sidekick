@@ -1,1 +1,7 @@
-<p>comment works!</p>
+<p>{{comment.comment}}</p>
+
+<a href="{{comment.url}}">{{comment.domain}}</a>
+
+<a [routerLink]="['/edit', comment.id]" routerLinkActive="active">
+    <img src="assets/images/edit.svg" alt="edit" height="20" width="20">
+</a>

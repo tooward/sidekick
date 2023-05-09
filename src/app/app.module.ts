@@ -5,7 +5,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { NgxTypedJsModule } from 'ngx-typed-js';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { RegistrationComponent } from './components/registration/registration.component';
 import { initializeApp,provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
 import { getAuth, provideAuth } from '@angular/fire/auth';
@@ -21,14 +20,13 @@ import { AngularFireModule } from "@angular/fire/compat";
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { HomeComponent } from './components/home/home.component';
 import { HeaderComponent } from './components/header/header.component';
-import { LibraryComponent } from './components/library/library.component';
 import { CommentComponent } from './components/comments/comment/comment.component';
 import { CommentEditComponent } from './components/comments/comment-edit/comment-edit.component';
+import { CommentlistComponent } from './components/comments/comment-list/comment-list.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    RegistrationComponent,
     UserComponent,
     SignInComponent,
     SignUpComponent,
@@ -37,9 +35,9 @@ import { CommentEditComponent } from './components/comments/comment-edit/comment
     PageNotFoundComponent,
     HomeComponent,
     HeaderComponent,
-    LibraryComponent,
     CommentComponent,
-    CommentEditComponent
+    CommentEditComponent,
+    CommentlistComponent
   ],
   imports: [
     BrowserModule,
