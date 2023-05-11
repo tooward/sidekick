@@ -6,8 +6,8 @@ import { Firestore, collectionData, addDoc } from '@angular/fire/firestore';
 import { collection, doc, setDoc } from "firebase/firestore";
 
 import { CommentService } from '../services/comments.service';
-import { User } from '../../../shared/services/user';
-import { AuthService } from '../../../shared/services/auth.service';
+import { User } from '../../usermgt/services/user';
+import { AuthService } from '../../usermgt/services/auth.service';
 import { testUserComments } from './testUserComments';
 import { testData } from './testdata';
 

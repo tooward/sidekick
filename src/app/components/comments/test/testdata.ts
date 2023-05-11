@@ -1,5 +1,5 @@
 import * as faker from '@faker-js/faker'
-import { User } from '../../../shared/services/user';
+import { User } from '../../usermgt/services/user';
 import { OComment } from '../data/comment';
 import { oPlace } from '../data/place';
 

@@ -16,7 +16,7 @@ import { Firestore, collection, query, orderBy, startAfter, where, collectionDat
 // Old imports
 import { firestorePagination, navDirection, sortBy } from '../pagination/firestorepagination';
 import { userPagination } from '../pagination/userpagination';
-import { AuthService } from 'src/app/shared/services/auth.service';
+import { AuthService } from 'src/app/components/usermgt/services/auth.service';
 
 @Component({
   selector: 'app-commentlist',
@@ -171,7 +171,7 @@ async  getCommentsPaginated(sortByIn?: sortBy, navigationDirection?: number, pag
 
     this.pagination.setNavigation(pageNavigatedTo, navigationDirection);
 
-// ### Start
+// ### Start simple working example of pagination
 
   //   let res: OComment[] = [];
 

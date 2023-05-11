@@ -14,7 +14,7 @@ import { SignInComponent } from './components/usermgt/sign-in/sign-in.component'
 import { SignUpComponent } from './components/usermgt/sign-up/sign-up.component';
 import { ForgotPasswordComponent } from './components/usermgt/forgot-password/forgot-password.component';
 import { VerifyEmailComponent } from './components/usermgt/verify-email/verify-email.component';
-import { AuthService } from "./shared/services/auth.service";
+import { AuthService } from "./components/usermgt/services/auth.service";
 
 import { AngularFireModule } from "@angular/fire/compat";
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';

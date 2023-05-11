@@ -1,5 +1,5 @@
 import { Injectable, NgZone, inject } from '@angular/core';
-import { User } from '../services/user';
+import { User } from './user';
 import { Auth } from '@angular/fire/auth';
 
 import * as auth from 'firebase/auth';
@@ -7,6 +7,8 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { Firestore } from '@angular/fire/firestore';
 import { collection, doc, setDoc } from "firebase/firestore";
+
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -49,7 +51,35 @@ export class AuthService {
         JSON.parse(localStorage.getItem('user')!);
       }
     });
+
+    // this.authStatusListener();
   }
+
+  // WIP - need to create obersvable subject for other components to subscribe to.
+  // For now other components should be able to check the signedIn status on the service (but seem to have issues)
+  // private authStatusSub = new BehaviorSubject(this.currentUser);
+  // currentAuthStatus = this.authStatusSub.asObservable();
+//   authStatusListener(){
+//     this.auth.onAuthStateChanged((user)=>{
+//       if(user){
+//         this.signedIn = true;
+//         this.userData = user;
+//         this.uid = user.uid;
+//         localStorage.setItem('user', JSON.stringify(this.userData));
+//         localStorage.setItem('uid', this.uid);
+// //        JSON.parse(localStorage.getItem('user')!);
+
+//         console.log(user);
+//         console.log('User is logged in');
+
+//         this.authStatusSub.next(user);
+//       }
+//       else{
+//         this.authStatusSub.next(null);
+//         console.log('User is logged out');
+//       }
+//     })
+//   }
 
   // Sign in with email/password
   async SignIn(email: string, password: string) {

@@ -11,7 +11,7 @@ import { HomeComponent } from './components/home/home.component';
 import { CommentComponent } from './components/comments/comment/comment.component';
 import { CommentEditComponent } from './components/comments/comment-edit/comment-edit.component';
 import { CommentlistComponent } from './components/comments/comment-list/comment-list.component';
-import { AuthGuard } from './shared/guard/auth.guard';
+import { AuthGuard } from './components/usermgt/guard/auth.guard';
 import { TestuiComponent } from './components/comments/test/testui.component';
 
 const routes: Routes = [

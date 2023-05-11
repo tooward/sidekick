@@ -213,7 +213,7 @@ async getCommentsPaginated(recordsPerPage: number, userId: string, startAfterRec
   const querySnapshot = await getDocs(q);
   this.lastDoc = querySnapshot.docs[querySnapshot.docs.length - 2]; // want second to last record for start after
 
-  //      console.log("Comment Service - getCommentsPaginated() - Query: \n" + JSON.stringify(q));
+//      console.log("Comment Service - getCommentsPaginated() - Query: \n" + JSON.stringify(q));
 //      console.log("Comment Service - getCommentsPaginated() - Last doc: " + JSON.stringify(this.lastDoc));
 
   cCollection = querySnapshot.docs.map(a => {
