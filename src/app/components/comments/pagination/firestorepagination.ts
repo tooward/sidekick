@@ -10,24 +10,7 @@ export enum navDirection{
 }
 
 export interface firestorePagination {
-
-    // A simple implementation of pagination that uses infinite scroll type pagination
-    // This is the only method possible without implementing a function to keep track of pages and record count
-    // It requests the current page of records and asks for the first item on the next page in that same query
-    // If there is a record that would be on the next page, it enables the next page control via a simple boolean
-    // If there is no record in the next page it disables it.
-    // The control keeps track of the preceeding records with a simple array of records it push onto as it navs forward, pops as it navs back
-
-    // Note this capability is retained but added capability to see all pages and navigate to / between them directly 
-    // This capability requires the firestore function to be in place as it calculates the pagination on each write (add or delete)
-
-    // Pagination is built using guidance from:
-    // https://medium.com/@achidera20/managing-auth-state-in-your-angular-firebase-app-c08d62cf3f43
-    // https://firebase.google.com/docs/firestore/query-data/query-cursors
-
-    // pagination variables
     pageRecordSize: number;
-
     queryRecordsPerPage: number; // query is typically +1 record used to detect if 'next' pagination is possible
     displayRecordsPerPage: number; // records to display on the page. Lower by 1 record than query
     currentPage: number;
@@ -37,19 +20,17 @@ export interface firestorePagination {
     pageToQuery: number;
     disableNext: boolean;
     disablePrevious: boolean;
-    startAfterRecords: number[]; // OComment[];
-    // can be a number or string depending on the sortby property (TODO - change to union type)
+    startAfterRecords: any[];
+    // TODO - change to union type. Can be a number or string depending on the sortby property
     startAfterRecord: any;
-    // user pagination is the persisted record of pagination records that are updated by the firestore function
-    // it is only needed for numerical page listings. The next, last function will work without the function
     userPaginationRecord?: userPagination;
     pagesEnabled: boolean;
 }
 
 export class firestorePagination implements firestorePagination {
 
-    queryRecordsPerPage: number; // query is typically +1 record used to detect if 'next' pagination is possible
-    displayRecordsPerPage: number; // records to display on the page. Lower by 1 record than query
+    queryRecordsPerPage: number; 
+    displayRecordsPerPage: number; 
     currentPage: number = 1;
     totalPages: number = 0;
     static defaultSort: sortBy = "savedTime";
@@ -58,15 +39,29 @@ export class firestorePagination implements firestorePagination {
     sortBy?: sortBy = this.defaultSort;
     disableNext: boolean = true;
     disablePrevious: boolean = true;
-    startAfterRecords: number[] = [];
-    startAfterRecordKeyFields: number[] = [];
+    startAfterRecords: any[] = new Array<any>();
     startAfterRecord: any;
     userPaginationRecord?: userPagination;
     pagesEnabled: boolean = false;
 
-    constructor(){
+    constructor() {
         this.disableNext = true;
         this.disablePrevious = true;
+        this.displayRecordsPerPage = userPagination.recordsPerPageDefault;
+        this.queryRecordsPerPage = this.displayRecordsPerPage + 1; // query is +1 record used to detect if 'next' pagination is possible
+        this.currentPage = 1;
+    }
+
+    setNavigation(pageNavigatedTo: number, navigationDirection: navDirection) {
+        if (pageNavigatedTo){
+            this.jumpToPage(pageNavigatedTo);
+          }
+          else if (navigationDirection === navDirection.forward){
+            this.moveForward();
+          }
+          else if (navigationDirection === navDirection.back){
+            this.moveBackward();
+          }
     }
 
     /*
@@ -109,6 +104,8 @@ export class firestorePagination implements firestorePagination {
 
     moveForward(): any {
 
+        console.log("Firestore Pagination - moveForward() called");
+        
         // assume that moved to next page, so need to show back button
         // at this point don't know if there is another page of records, assume not until retrieve result set
         this.disableNext = true;
@@ -120,10 +117,12 @@ export class firestorePagination implements firestorePagination {
             if (this.userPaginationRecord){
                 this.userPaginationRecord.currentDisplayPage++;
             }
-            
-            return this.startAfterRecord;
+
+//            return this.startAfterRecord;
         }
         else{
+            console.log("Firestore Pagination - moveForward(): returned null as start after record length was " + this.startAfterRecord.length 
+                        + ", less than current page " + this.currentPage);
             return null;
         }
     }
@@ -149,29 +148,43 @@ export class firestorePagination implements firestorePagination {
             if (this.currentPage == 1){
                 this.disablePrevious = true;
             }
-            return this.startAfterRecord;
         }
 
     }
 
-    setNextPage(nextPageStartAfterRecord: OComment){
-        // check if we have this already - need to be resilient with multiple replies from observable with results
-        // it may be that the next page record changed. Out of scope for now, assume static query results (cloud function should solve for this)
-        if (!this.startAfterRecords[this.currentPage - 1] && this.currentPage !== 1){
-            this.startAfterRecords.push(nextPageStartAfterRecord.savedTime.getTime());
-        }
+    setNextPage(nextPageStartAfterRecord: any){
+
+//        console.log("Firestore Pagination - setNextPage(): nextPageStartAfterRecord " + JSON.stringify(nextPageStartAfterRecord));
+
+//        if (!this.startAfterRecords[this.currentPage - 1] && this.currentPage !== 1){
+            console.log("Firestore Pagination - setNextPage(): adding startAfterRecord to array at position " + (this.currentPage) 
+                        + " with value " + JSON.stringify(nextPageStartAfterRecord));
+            this.startAfterRecords[this.currentPage] = JSON.stringify(nextPageStartAfterRecord); //.push(JSON.parse(JSON.stringify(nextPageStartAfterRecord)));
+//            console.log("Firestore Pagination - setNextPage(): value in array: \n" + JSON.stringify(this.startAfterRecords[this.startAfterRecords.length - 1]));
+//        }
+
         this.disableNext = false;
     }
 
     setThisPage(thisPageStartAfterRecord: OComment){
-        // only set if don't already have a record in this position
-        if (!this.startAfterRecords[this.currentPage - 1] && this.currentPage !== 1){
-            this.startAfterRecords.push(thisPageStartAfterRecord.savedTime.getTime());
-//            this.startAfterRecordKeyFields.push(thisPageStartAfterRecord.savedTime.getTime());
-            // first record must be empty in start after
-            if (this.currentPage === 0 && this.startAfterRecords[0]){
-                this.startAfterRecords[0] = null;
+        console.log("Firestore Pagination - setThisPage(): currentPage: " + this.currentPage);
+
+        // don't set if page is first page (1) as that should be null.
+        if (this.currentPage !== 1){
+            // only set if don't already have a record in this position.
+            if (!this.startAfterRecords[this.currentPage - 1]){
+                console.log("Firestore Pagination - setThisPage(): adding startAfterRecord to array at position " + (this.currentPage - 1));
+                console.log("Firestore Pagination - setThisPage(): with value " + JSON.stringify(thisPageStartAfterRecord));
+                this.startAfterRecords.push(thisPageStartAfterRecord);
+                // first record must be empty in start after
+                if (this.currentPage === 0 && this.startAfterRecords[0]){
+                    this.startAfterRecords[0] = null;
+                }
             }
+        }
+        else{
+            console.log("Firestore Pagination - setThisPage(): On page 1, setting startAfterRecord to null");
+            this.startAfterRecords[0] = null;
         }
     }
 

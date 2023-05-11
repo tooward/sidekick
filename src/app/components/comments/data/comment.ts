@@ -78,7 +78,13 @@ export class OComment implements iOComment {
 
     // write a function to convert a plain object to a class instance
     public static plainToClass(plain: any): OComment {
+//        console.log("Comment plainToClass: " + JSON.stringify(plain));
+
         let c = new OComment();
+
+        if (plain.id){
+            c.id = plain.id;
+        }
     
         if (plain.userId){
             c.userId = plain.userId;
@@ -113,10 +119,11 @@ export class OComment implements iOComment {
         }
 
         if (plain.savedTime){
-            // use internal representation as Date object, not epoch
+            // adjusted as Firebase sends date format, not epoch (previously parsed epoch int value into Date object)
+            // https://firebase.google.com/docs/firestore/manage-data/data-types
             try{
-                c.savedTime = new Date(parseInt(plain.savedTime));
-            //                console.log("~ index.ts - firestoreDocumentDataToClass - value savedTime: " + c.savedTime);
+                c.savedTime = new Date(plain.savedTime);
+                // console.log("~ index.ts - firestoreDocumentDataToClass - value savedTime: " + c.savedTime);
             }
             catch(exception){
                 console.log("~ comment.ts - plainToClass - #ERROR# in savedTime: " + exception);
@@ -126,7 +133,7 @@ export class OComment implements iOComment {
         if (plain.lastUpdateTime){
             // use internal representation as Date object, not epoch
             try{
-                c.lastUpdateTime = new Date(parseInt(plain.lastUpdateTime));
+                c.lastUpdateTime = new Date(plain.lastUpdateTime);
             //                console.log("~ index.ts - firestoreDocumentDataToClass - value savedTime: " + c.savedTime);
             }
             catch(exception){

@@ -21,13 +21,14 @@
                 <div>Go forth and comment!</div>
         </div>
 
-        <div *ngIf="this.pagination.pagesEnabled" class="pagination">
+        <div class="pagination">
             <a *ngIf="this.pagination && !this.pagination.disablePrevious" (click)="getCommentsPaginated(null, navdir.back)">
-                navigate_before
+                <<
             </a>
 
-            <div *ngIf="this.pagination.userPaginationRecord.pagesStartAfterRecord 
-                     && this.pagination.userPaginationRecord.pagesStartAfterRecord.length > 1">
+            <div *ngIf="this.pagination.pagesEnabled
+                        && this.pagination.userPaginationRecord.pagesStartAfterRecord 
+                        && this.pagination.userPaginationRecord.pagesStartAfterRecord.length > 1">
                 <div *ngFor="let pages of this.pagination.userPaginationRecord.pagesStartAfterRecord; index as i;">
                     <a *ngIf="this.pagination.userPaginationRecord.currentDisplayPage !== i+1"
                         (click)="getCommentsPaginated(null, null, i+1)">
@@ -40,7 +41,7 @@
             </div>
 
             <a *ngIf="this.pagination && !this.pagination.disableNext" (click)="getCommentsPaginated(null, navdir.forward)">
-                navigate_next
+                <Button> Load more </Button>
             </a>
         </div>
         
@@ -64,12 +65,11 @@
             <p>Current page:  {{this.pagination.currentPage}}</p>
             <p>Disable next: {{this.pagination.disableNext}}</p>
             <p>Disable previous: {{this.pagination.disablePrevious}}</p>
+            <p>Total Records: {{this.fbcomments.length}}</p>
             <p>StartAfter this page: {{this.pagination.startAfterRecord}}</p>
-            <p>Total Pages: {{this.pagination.totalPages}}</p>
         </div>
 
         <br>
         <br>
-        <!-- -->
     </div>
 </div>

@@ -78,17 +78,13 @@ export class CommentlistComponent implements OnInit {
         }
     });      
 
-    // this will set the infinite scroll navigation controls by default. Doesn't conflict with userPagination but redundant
+    // This will set the infinite scroll navigation controls by default. It doesn't conflict with userPagination.
     if (!this.pagination){
+      console.log("CommentlistComponent - OnInit(): Pagination not set. Setting default pagination.");
       this.pagination = new firestorePagination();
-      this.pagination.displayRecordsPerPage = userPagination.recordsPerPageDefault;
-      // need to add an additional record to detect if there is another page of records and set the next page button
-      this.pagination.queryRecordsPerPage = this.pagination.displayRecordsPerPage + 1;
-      this.pagination.currentPage = 1;
 
-      // obtain the user pagination for the pagination control
+      // obtain the user pagination for the pagination control. User pagination is stored as a firestore record
       if(!this.pagination.userPaginationRecord) {
-
         const user = this.auth.currentUser;
         if (user !== null) {
           this.cservice.getUserPagination(user.uid).subscribe(res=>
@@ -103,7 +99,6 @@ export class CommentlistComponent implements OnInit {
         }
       }
 
-      console.log("Pagination OnInit()");
       this.getCommentsPaginated();
     }
 
@@ -146,13 +141,15 @@ export class CommentlistComponent implements OnInit {
   */
   getCommentsPaginated(sortByIn?: sortBy, navigationDirection?: number, page?: number){
     console.log("CommentListComponent getCommentsPaginated()");
+    // console.log("CommentListComponent getCommentsPaginated() - sortByIn: " + sortByIn);
+    // console.log("CommentListComponent getCommentsPaginated() - navigationDirection: " + navigationDirection);
+    // console.log("CommentListComponent getCommentsPaginated() - page: " + page);
 
     this.loading = true;
-    
     var res: Observable<OComment[]>;
     
-    // STARTHERE - in this function use the page (index in the array + 1) to retrieve the correct startAfter record and get the page from there
     let pageNavigatedTo: number;
+
     // check if passed as URL parameter instead of into the method
     if (!page){
       try{
@@ -170,26 +167,7 @@ export class CommentlistComponent implements OnInit {
       this.pagination.sortBy = sortByIn;
     }
 
-    if (pageNavigatedTo){
-      this.pagination.jumpToPage(pageNavigatedTo);
-    }
-    else if (navigationDirection === navDirection.forward){
-      this.pagination.moveForward();
-    }
-    else if (navigationDirection === navDirection.back){
-      this.pagination.moveBackward();
-    }
-
-    if (this.authService.isLoggedIn) {
-      console.log("getCommentsPaginated() - user is logged in");
-      if (this.authService.userData !== null){
-        console.log("getCommentsPaginated() - userData is NOT null");
-//        console.log("getCommentsPaginated() - userData.: " + JSON.stringify(this.authService.userData));
-      }
-    }
-    else{
-      console.log("getCommentsPaginated() - user is NOT logged in");
-    }
+    this.pagination.setNavigation(pageNavigatedTo, navigationDirection);
 
     if (this.authService.isLoggedIn) {
       this.cservice.getCommentsPaginated(this.pagination.queryRecordsPerPage, 
@@ -197,26 +175,28 @@ export class CommentlistComponent implements OnInit {
                                          this.pagination.sortBy)
                    .then(
                     res => {
-                      console.log("Comment-List - getCommentsPaginated: Query paginated with query records per page: " + this.pagination.queryRecordsPerPage + " and page: " + this.pagination.currentPage);
-                      console.log("Comment-List - getCommentsPaginated: Query paginated with startAfterRecord: " + this.pagination.startAfterRecord);
-                      console.log("Comment-List - getCommentsPaginated: Query returned records: " + res.length);
+                      console.log("Comment-List - getCommentsPaginated - current page: " + this.pagination.currentPage
+                                + " - with startAfterRecord: " + JSON.stringify(this.pagination.startAfterRecord)
+                                + " - returned records: " + res.length);
 
-                      // don't display first on next page record, if exists
-                      this.fbcomments = res.slice(0, (this.pagination.displayRecordsPerPage));
                       // store first record in this page in array allowing to pop them off as move backward or reference in index for paging
-                      this.pagination.setThisPage(res[0]);
+//                      this.pagination.setThisPage(this.cservice.lastDoc); //res[0]);
 
-                      if (res.length > 0){
+//                      if (res.length > 0){
                         // Next page is required only if the additional record over the pagination limit was returned.
                         if (res.length > this.pagination.displayRecordsPerPage){
-                          this.pagination.setNextPage(res[res.length - 2]); // take last record of display as calling startafter
+                          console.log("Comment-List - getCommentsPaginated: Setting next page");
+                          this.pagination.setNextPage(this.cservice.lastDoc); // res[res.length - 2]); // take last record of display as calling startafter;
                         }
                         else{
+                          console.log("Comment-List - getCommentsPaginated: No next page");
                           this.pagination.noNextPage();
                         }
-                      }
+//                      }
 
-                      this.loading=false;
+                      // don't display first on next page record, if exists
+                        this.fbcomments = res.slice(0, (this.pagination.displayRecordsPerPage));
+                        this.loading=false;
                     },
                     err => {
                       this.handleFBQueryError(err);

@@ -1,8 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Firestore, collection, query, orderBy, startAfter, where, collectionData, addDoc, deleteDoc, getDocs, getDoc, doc, docData, Timestamp, CollectionReference, queryEqual, DocumentReference, DocumentData, setDoc, limit, QuerySnapshot } from '@angular/fire/firestore';
 import { Observable, throwError, from } from 'rxjs';
-import { map } from 'rxjs/operators';
-
 import { firestorePagination } from '../pagination/firestorepagination';
 import { userPagination } from '../pagination/userpagination';
 import { OComment } from '../data/comment';
@@ -45,6 +43,7 @@ export class CommentService {
 comments$: Observable<OComment[]>;
 commentsCollectionReference: string = 'comments';
 firestore: Firestore = inject(Firestore);
+lastDoc: any;
 
   constructor() {
       const commentsCollection = collection(this.firestore, this.commentsCollectionReference);
@@ -165,8 +164,8 @@ async updateComment(comment: OComment){
 
   getComments(userId: string): Observable<OComment[]> {
 
-    //const q = query(collection(this.firestore, this.commentsCollectionReference), where("userid", "==", true));
-      const querySnapshot = getDocs(collection(this.firestore, this.commentsCollectionReference));
+      // const q = query(collection(this.firestore, this.commentsCollectionReference), where("userid", "==", true));
+      // const querySnapshot = getDocs(collection(this.firestore, this.commentsCollectionReference));
       this.comments$ = collectionData(collection(this.firestore, this.commentsCollectionReference)) as Observable<OComment[]>;
 
       return this.comments$;
@@ -186,7 +185,8 @@ async updateComment(comment: OComment){
     https://firebase.google.com/docs/firestore/query-data/query-cursors
   */
 async getCommentsPaginated(recordsPerPage: number, userId: string, startAfterRecord?: any, sortby?: string) : Promise<OComment[]> {
-  console.log("CommentService getCommentsPaginated() called");
+
+  //  console.log("CommentService getCommentsPaginated() called");
 
   let orderby: string;
       let cCollection: OComment[] = [];
@@ -205,15 +205,16 @@ async getCommentsPaginated(recordsPerPage: number, userId: string, startAfterRec
       const q = query(collection(this.firestore, this.commentsCollectionReference), 
                       where("userId", "==", userId),
                       orderBy(orderby),
-                      limit(recordsPerPage),
-                      startAfter(startAfterRecord));
+                      startAfter(startAfterRecord || 0),
+                      limit(recordsPerPage));
+
+      console.log("Query: " + JSON.stringify(q));
 
       const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        // console.log(doc.id, " => ", doc.data());
-      });
-      
+
+      // save the second to last record for next page, if needed. Note take 2nd to last as using start after (taking last would skip first record on next page).
+      this.lastDoc = querySnapshot.docs[querySnapshot.docs.length - 2];
+
       cCollection = querySnapshot.docs.map(a => {
             let data = OComment.plainToClass(a.data());
             data.id = a.id;
@@ -221,7 +222,7 @@ async getCommentsPaginated(recordsPerPage: number, userId: string, startAfterRec
       });
 
       return cCollection;
-    }
+} // end getCommentsPaginated()
   
     getUserPagination(userId: string): Observable<userPagination>{
       let up$: Observable<userPagination>;
@@ -229,6 +230,6 @@ async getCommentsPaginated(recordsPerPage: number, userId: string, startAfterRec
       up$ = docData(ref) as Observable<userPagination>;
       up$.subscribe();
       return up$; 
-    }
+    } // end getUserPagination()
 
 }

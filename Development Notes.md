@@ -7,9 +7,22 @@
 - Need to find out why Anglar Fire is causing build [issues](https://github.com/angular/angularfire/issues/32900). Used this workaround but need to switch back:
 Change tsconfig: "strict": false, "skipLibCheck": true,
 
+# Chrome Extension
 - If want to put this in as a bookmarklet need to read up on how to build properly for a chrome extension.
 https://www.npmjs.com/package/@angular-devkit/build-angular
 
+https://developer.chrome.com/extensions
+Sign-in Chrome extension must whitelist
+https://firebase.google.com/docs/auth/web/google-signin#authenticate_with_firebase_in_a_chrome_extension
+Chrome extension with angular - 
+https://medium.com/angular-in-depth/chrome-extension-with-angular-why-and-how-778200b87575
+- background script must be built to not be included with compiled files
+- need to add manifest to the assets
+- Remove custom builder for adding packages
+            "builder": "@angular-builders/custom-webpack:browser",
+            "customWebpackConfig": {
+              "path": "./custom-webpack.config.js"
+            },
 
 # Dependencies
 
@@ -24,7 +37,6 @@ update angular.json to use )
 - Google Fonts (styles.css updated to leverage classes)
 - Angular Fire (had issue with build, needed to run npm audit fix --force)
 - NG Typed for typing text on homepage https://www.npmjs.com/package/ngx-typed-js
-- Used this tutorial for Firebase Auth https://www.positronx.io/full-angular-firebase-authentication-system/. Note have to use BOTH init's for Firebase to get this to work. Need to migrate it to the new process (note the use of /compat/ in path of libraries used).
 
 NOTES:
 
@@ -59,19 +71,7 @@ https://github.com/angular/angularfire
 https://medium.com/madhash/how-to-crud-in-angular-firebase-firestore-456353d7c62
 https://firebase.googleblog.com/2018/08/better-arrays-in-cloud-firestore.html // query array parameters
 
-**Chrome Extension**
-https://developer.chrome.com/extensions
-Sign-in Chrome extension must whitelist
-https://firebase.google.com/docs/auth/web/google-signin#authenticate_with_firebase_in_a_chrome_extension
-Chrome extension with angular - 
-https://medium.com/angular-in-depth/chrome-extension-with-angular-why-and-how-778200b87575
-- background script must be built to not be included with compiled files
-- need to add manifest to the assets
-- Remove custom builder for adding packages
-            "builder": "@angular-builders/custom-webpack:browser",
-            "customWebpackConfig": {
-              "path": "./custom-webpack.config.js"
-            },
+
 
 ** Google Maps ** 
 

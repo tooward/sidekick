@@ -2,7 +2,7 @@ export interface userPaginationInterface {
     id: string;
     totalRecords: number;
     totalPages: number;
-    pagesStartAfterRecord: number[];
+    pagesStartAfterRecord: Date[];
     recordsPerPage: number;
     currentDisplayPage: number; // holds array position in pagesStartAfterRecord
 }
@@ -14,7 +14,7 @@ export class userPagination implements userPaginationInterface {
     id: string = "";
     totalRecords: number = 0;
     totalPages: number = 0;
-    pagesStartAfterRecord: number[] = [];
+    pagesStartAfterRecord: any[] = new Array<any>();
     recordsPerPage: number = 10;
     currentDisplayPage: number = 1;
     ignoreLastStartAfter: boolean;
