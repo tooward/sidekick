@@ -23,7 +23,7 @@
 
         <div class="pagination">
             <a *ngIf="this.pagination && !this.pagination.disablePrevious" (click)="getCommentsPaginated(null, navdir.back)">
-                <<
+                Back <<
             </a>
 
             <div *ngIf="this.pagination.pagesEnabled
@@ -41,7 +41,7 @@
             </div>
 
             <a *ngIf="this.pagination && !this.pagination.disableNext" (click)="getCommentsPaginated(null, navdir.forward)">
-                <Button> Load more </Button>
+                Next >>
             </a>
         </div>
         
@@ -60,7 +60,7 @@
             </ul>
         </div>
         
-        <div *ngIf="this.pagination" style="clear:both;">
+        <div *ngIf="pagination && fbcomments && !loading" style="clear:both;">
             <h3>Pagination variables: firestorePagination</h3>
             <p>Current page:  {{this.pagination.currentPage}}</p>
             <p>Disable next: {{this.pagination.disableNext}}</p>

@@ -103,8 +103,10 @@ export class firestorePagination implements firestorePagination {
     } //moveToPage()
 
     moveForward(): any {
-
-        console.log("Firestore Pagination - moveForward() called");
+        // console.log("Firestore Pagination - moveForward() called");
+        // console.log("Firestore Pagination - moveForward(): currentPage: " + this.currentPage);
+        // console.log("Firestore Pagination - moveForward(): startAfterRecords[0] " + JSON.stringify(this.startAfterRecords[0]));
+        // console.log("Firestore Pagination - moveForward(): startAfterRecords[1] " + JSON.stringify(this.startAfterRecords[1]));
         
         // assume that moved to next page, so need to show back button
         // at this point don't know if there is another page of records, assume not until retrieve result set
@@ -121,8 +123,8 @@ export class firestorePagination implements firestorePagination {
 //            return this.startAfterRecord;
         }
         else{
-            console.log("Firestore Pagination - moveForward(): returned null as start after record length was " + this.startAfterRecord.length 
-                        + ", less than current page " + this.currentPage);
+//            console.log("Firestore Pagination - moveForward(): returned null as start after record length was " + this.startAfterRecord.length 
+//                        + ", less than current page " + this.currentPage);
             return null;
         }
     }
@@ -157,9 +159,9 @@ export class firestorePagination implements firestorePagination {
 //        console.log("Firestore Pagination - setNextPage(): nextPageStartAfterRecord " + JSON.stringify(nextPageStartAfterRecord));
 
 //        if (!this.startAfterRecords[this.currentPage - 1] && this.currentPage !== 1){
-            console.log("Firestore Pagination - setNextPage(): adding startAfterRecord to array at position " + (this.currentPage) 
-                        + " with value " + JSON.stringify(nextPageStartAfterRecord));
-            this.startAfterRecords[this.currentPage] = JSON.stringify(nextPageStartAfterRecord); //.push(JSON.parse(JSON.stringify(nextPageStartAfterRecord)));
+            // console.log("Firestore Pagination - setNextPage(): adding startAfterRecord to array at position " + (this.currentPage) 
+            //             + " with value " + JSON.stringify(nextPageStartAfterRecord));
+            this.startAfterRecords[this.currentPage] = nextPageStartAfterRecord; //.push(JSON.parse(JSON.stringify(nextPageStartAfterRecord)));
 //            console.log("Firestore Pagination - setNextPage(): value in array: \n" + JSON.stringify(this.startAfterRecords[this.startAfterRecords.length - 1]));
 //        }
 
@@ -167,14 +169,14 @@ export class firestorePagination implements firestorePagination {
     }
 
     setThisPage(thisPageStartAfterRecord: OComment){
-        console.log("Firestore Pagination - setThisPage(): currentPage: " + this.currentPage);
+//        console.log("Firestore Pagination - setThisPage(): currentPage: " + this.currentPage);
 
         // don't set if page is first page (1) as that should be null.
         if (this.currentPage !== 1){
             // only set if don't already have a record in this position.
             if (!this.startAfterRecords[this.currentPage - 1]){
-                console.log("Firestore Pagination - setThisPage(): adding startAfterRecord to array at position " + (this.currentPage - 1));
-                console.log("Firestore Pagination - setThisPage(): with value " + JSON.stringify(thisPageStartAfterRecord));
+                // console.log("Firestore Pagination - setThisPage(): adding startAfterRecord to array at position " + (this.currentPage - 1));
+                // console.log("Firestore Pagination - setThisPage(): with value " + JSON.stringify(thisPageStartAfterRecord));
                 this.startAfterRecords.push(thisPageStartAfterRecord);
                 // first record must be empty in start after
                 if (this.currentPage === 0 && this.startAfterRecords[0]){
@@ -183,7 +185,7 @@ export class firestorePagination implements firestorePagination {
             }
         }
         else{
-            console.log("Firestore Pagination - setThisPage(): On page 1, setting startAfterRecord to null");
+//            console.log("Firestore Pagination - setThisPage(): On page 1, setting startAfterRecord to null");
             this.startAfterRecords[0] = null;
         }
     }
@@ -193,6 +195,8 @@ export class firestorePagination implements firestorePagination {
     }
 
     setStartAftertRecord(){
+//        console.log("Firestore Pagination - setStartAftertRecord(): currentPage: " + this.currentPage);
+
         if (this.currentPage === 1)
         {
             this.startAfterRecord = null;

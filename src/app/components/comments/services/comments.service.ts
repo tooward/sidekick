@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Firestore, collection, query, orderBy, startAfter, where, collectionData, addDoc, deleteDoc, getDocs, getDoc, doc, docData, Timestamp, CollectionReference, queryEqual, DocumentReference, DocumentData, setDoc, limit, QuerySnapshot } from '@angular/fire/firestore';
 import { Observable, throwError, from } from 'rxjs';
+import { map } from 'rxjs/operators';
+
 import { firestorePagination } from '../pagination/firestorepagination';
 import { userPagination } from '../pagination/userpagination';
 import { OComment } from '../data/comment';
@@ -186,42 +188,41 @@ async updateComment(comment: OComment){
   */
 async getCommentsPaginated(recordsPerPage: number, userId: string, startAfterRecord?: any, sortby?: string) : Promise<OComment[]> {
 
-  //  console.log("CommentService getCommentsPaginated() called");
+  // console.log("CommentService getCommentsPaginated() called");
+  // if (startAfterRecord){
+  //   console.log("CommentService getCommentsPaginated() startAfterRecord.id is: " + startAfterRecord.id);
+  //   console.log("CommentService getCommentsPaginated() startAfterRecord is: " + JSON.stringify(startAfterRecord));
+  // }
 
   let orderby: string;
-      let cCollection: OComment[] = [];
+  let cCollection: OComment[] = [];
 
-      if (!sortby){
-        orderby = firestorePagination.defaultSort;
-      }
-      else{
-        orderby = sortby;
-      }
+  if (!sortby){
+    orderby = firestorePagination.defaultSort;
+  }
+  else{
+    orderby = sortby;
+  }
 
-      if (!startAfterRecord){
-        startAfterRecord = 0;
-      }
-      
-      const q = query(collection(this.firestore, this.commentsCollectionReference), 
-                      where("userId", "==", userId),
-                      orderBy(orderby),
-                      startAfter(startAfterRecord || 0),
-                      limit(recordsPerPage));
+  const q = query(collection(this.firestore, this.commentsCollectionReference), 
+                  where("userId", "==", userId),
+                  orderBy(orderby),
+                  startAfter(startAfterRecord ? startAfterRecord : 0), //startAfterRecord ? startAfterRecord.id : 0),
+                  limit(recordsPerPage));
 
-      console.log("Query: " + JSON.stringify(q));
+  const querySnapshot = await getDocs(q);
+  this.lastDoc = querySnapshot.docs[querySnapshot.docs.length - 2]; // want second to last record for start after
 
-      const querySnapshot = await getDocs(q);
+  //      console.log("Comment Service - getCommentsPaginated() - Query: \n" + JSON.stringify(q));
+//      console.log("Comment Service - getCommentsPaginated() - Last doc: " + JSON.stringify(this.lastDoc));
 
-      // save the second to last record for next page, if needed. Note take 2nd to last as using start after (taking last would skip first record on next page).
-      this.lastDoc = querySnapshot.docs[querySnapshot.docs.length - 2];
+  cCollection = querySnapshot.docs.map(a => {
+        let data = OComment.plainToClass(a.data());
+        data.id = a.id;
+        return data;
+  });
 
-      cCollection = querySnapshot.docs.map(a => {
-            let data = OComment.plainToClass(a.data());
-            data.id = a.id;
-            return data;
-      });
-
-      return cCollection;
+  return cCollection;
 } // end getCommentsPaginated()
   
     getUserPagination(userId: string): Observable<userPagination>{

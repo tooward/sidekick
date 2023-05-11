@@ -9,8 +9,9 @@ import { OComment } from '../data/comment'
 import { CommentService } from '../services/comments.service';
 
 // Firebase related imports
-import { Firestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
+import { Firestore, collection, query, orderBy, startAfter, where, collectionData, addDoc, deleteDoc, getDocs, getDoc, doc, docData, Timestamp, CollectionReference, queryEqual, DocumentReference, DocumentData, setDoc, limit, QuerySnapshot } from '@angular/fire/firestore';
+
 
 // Old imports
 import { firestorePagination, navDirection, sortBy } from '../pagination/firestorepagination';
@@ -44,6 +45,7 @@ export class CommentlistComponent implements OnInit {
   private auth: Auth = inject(Auth);
   private user: User;
   private userLoggedIn: boolean = false;
+  private lastDoc: any;
  
   constructor(
     public cservice: CommentService,
@@ -139,14 +141,14 @@ export class CommentlistComponent implements OnInit {
     Only workaround for number of pages is to keep track of this separately with a function that tracks count.
     This is challenging as need separate counters for separate filters.
   */
-  getCommentsPaginated(sortByIn?: sortBy, navigationDirection?: number, page?: number){
+async  getCommentsPaginated(sortByIn?: sortBy, navigationDirection?: number, page?: number){
     console.log("CommentListComponent getCommentsPaginated()");
     // console.log("CommentListComponent getCommentsPaginated() - sortByIn: " + sortByIn);
     // console.log("CommentListComponent getCommentsPaginated() - navigationDirection: " + navigationDirection);
     // console.log("CommentListComponent getCommentsPaginated() - page: " + page);
 
     this.loading = true;
-    var res: Observable<OComment[]>;
+//    var res: Observable<OComment[]>;
     
     let pageNavigatedTo: number;
 
@@ -169,41 +171,86 @@ export class CommentlistComponent implements OnInit {
 
     this.pagination.setNavigation(pageNavigatedTo, navigationDirection);
 
+// ### Start
+
+  //   let res: OComment[] = [];
+
+  //   if (this.lastDoc === undefined){
+  //     const q = query(collection(this.firestore, 'comments'), 
+  //     where("userId", "==", this.authService.userData.uid),
+  //     orderBy("savedTime"),
+  //     limit(this.pagination.queryRecordsPerPage));
+
+  //     const querySnapshot = await getDocs(q);
+  //     console.log("Comment Service - getCommentsPaginated() - Last doc: " + JSON.stringify(this.lastDoc));
+  
+  //     res = querySnapshot.docs.map(a => {
+  //       let data = OComment.plainToClass(a.data());
+  //       data.id = a.id;
+  //       return data;
+  //     });
+
+  //     this.lastDoc = querySnapshot.docs[querySnapshot.docs.length - 2];
+
+  //   }
+  //   else{
+  //     const q = query(collection(this.firestore, 'comments'), 
+  //     where("userId", "==", this.authService.userData.uid),
+  //     orderBy("savedTime"),
+  //     startAfter(this.lastDoc),
+  //     limit(this.pagination.queryRecordsPerPage));
+
+  //     const querySnapshot = await getDocs(q);
+  //     console.log("Comment Service - getCommentsPaginated() - Last doc: " + JSON.stringify(this.lastDoc));
+
+  //     res = querySnapshot.docs.map(a => {
+  //       let data = OComment.plainToClass(a.data());
+  //       data.id = a.id;
+  //       return data;
+  //     });
+  // }
+
+  //   console.log("Comment Service - getCommentsPaginated() - returned records: " + res.length);
+
+// ### END 
+
     if (this.authService.isLoggedIn) {
       this.cservice.getCommentsPaginated(this.pagination.queryRecordsPerPage, 
-                                         this.authService.userData.uid, this.pagination.startAfterRecord, 
+                                         this.authService.userData.uid, 
+                                         this.pagination.startAfterRecord, 
                                          this.pagination.sortBy)
                    .then(
                     res => {
-                      console.log("Comment-List - getCommentsPaginated - current page: " + this.pagination.currentPage
-                                + " - with startAfterRecord: " + JSON.stringify(this.pagination.startAfterRecord)
-                                + " - returned records: " + res.length);
+                      // console.log("Comment-List - getCommentsPaginated - current page: " + this.pagination.currentPage
+                      //           + " - with startAfterRecord: " + JSON.stringify(this.pagination.startAfterRecord)
+                      //           + " - returned records: " + res.length);
 
                       // store first record in this page in array allowing to pop them off as move backward or reference in index for paging
 //                      this.pagination.setThisPage(this.cservice.lastDoc); //res[0]);
 
-//                      if (res.length > 0){
+                     if (res.length > 0){
                         // Next page is required only if the additional record over the pagination limit was returned.
                         if (res.length > this.pagination.displayRecordsPerPage){
-                          console.log("Comment-List - getCommentsPaginated: Setting next page");
+//                          console.log("Comment-List - getCommentsPaginated: Setting next page");
                           this.pagination.setNextPage(this.cservice.lastDoc); // res[res.length - 2]); // take last record of display as calling startafter;
                         }
                         else{
-                          console.log("Comment-List - getCommentsPaginated: No next page");
+//                          console.log("Comment-List - getCommentsPaginated: No next page");
                           this.pagination.noNextPage();
                         }
-//                      }
+                     }
 
                       // don't display first on next page record, if exists
                         this.fbcomments = res.slice(0, (this.pagination.displayRecordsPerPage));
                         this.loading=false;
-                    },
+                     },
                     err => {
-                      this.handleFBQueryError(err);
+                      console.log("Comment-List - getCommentsPaginated - error: " + err);
+                      //this.handleFBQueryError(err);
                       this.loading=false;
                     }
                     );
-    } else {
+     } else {
       console.error("CommentlistComponent - getCommentsPaginated(): user NOT logged in");
       this.loading=false;
     }
