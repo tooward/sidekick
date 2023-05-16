@@ -46,6 +46,7 @@ export class CommentlistComponent implements OnInit {
   private user: User;
   private userLoggedIn: boolean = false;
   private lastDoc: any;
+  public recordCount: number = 0;
  
   constructor(
     public cservice: CommentService,
@@ -59,26 +60,25 @@ export class CommentlistComponent implements OnInit {
 
     console.log("CommentlistComponent ngOnInit()");
 
-    if(this.authService.userData !== null && this.authService.isLoggedIn){
-      this.userLoggedIn = true;
-      console.log("ngOnInit() User IS signed in");
-    }
-    else {
-      console.log("ngOnInit() User is NOT signed in.");
-    }
-
     this.auth.onAuthStateChanged((user) => {
-      //      if (this.authService.userData !== null && this.authService.isLoggedIn) {
         if (user) {
-          console.log("CommentListComponent - constructor() User is signed in as: " + user.uid );
           // get the current state for the user
           this.user = user;
           this.userLoggedIn = true;
+          console.log("CommentListComponent - constructor() User is signed in as: " + user.uid );
+
+          // get record count from comments service
+          this.cservice.getCommentsCountByUser(user.uid).then(res => { 
+            this.recordCount = res;
+            this.pagination.totalPages = Math.ceil(this.recordCount / this.pagination.queryRecordsPerPage);
+            this.pagination.pagesEnabled = true;
+            console.log("CommentListComponent - constructor() - record count: " + this.recordCount);
+          }).catch(err => console.log(err));
         }
         else{
           console.log("constructor() User is NOT signed in.");
         }
-    });      
+    });
 
     // This will set the infinite scroll navigation controls by default. It doesn't conflict with userPagination.
     if (!this.pagination){
@@ -142,13 +142,13 @@ export class CommentlistComponent implements OnInit {
     This is challenging as need separate counters for separate filters.
   */
 async  getCommentsPaginated(sortByIn?: sortBy, navigationDirection?: number, page?: number){
-    console.log("CommentListComponent getCommentsPaginated()");
+    // console.log("CommentListComponent getCommentsPaginated()");
     // console.log("CommentListComponent getCommentsPaginated() - sortByIn: " + sortByIn);
     // console.log("CommentListComponent getCommentsPaginated() - navigationDirection: " + navigationDirection);
     // console.log("CommentListComponent getCommentsPaginated() - page: " + page);
 
     this.loading = true;
-//    var res: Observable<OComment[]>;
+    // var res: Observable<OComment[]>;
     
     let pageNavigatedTo: number;
 
@@ -171,7 +171,7 @@ async  getCommentsPaginated(sortByIn?: sortBy, navigationDirection?: number, pag
 
     this.pagination.setNavigation(pageNavigatedTo, navigationDirection);
 
-// ### Start simple working example of pagination
+  // ### Start simple working example of pagination
 
   //   let res: OComment[] = [];
 
@@ -212,48 +212,51 @@ async  getCommentsPaginated(sortByIn?: sortBy, navigationDirection?: number, pag
 
   //   console.log("Comment Service - getCommentsPaginated() - returned records: " + res.length);
 
-// ### END 
+  // ### END 
 
-    if (this.authService.isLoggedIn) {
-      this.cservice.getCommentsPaginated(this.pagination.queryRecordsPerPage, 
-                                         this.authService.userData.uid, 
-                                         this.pagination.startAfterRecord, 
-                                         this.pagination.sortBy)
-                   .then(
-                    res => {
-                      // console.log("Comment-List - getCommentsPaginated - current page: " + this.pagination.currentPage
-                      //           + " - with startAfterRecord: " + JSON.stringify(this.pagination.startAfterRecord)
-                      //           + " - returned records: " + res.length);
+    this.auth.onAuthStateChanged(user => {
+      if (user != null) {
+        this.cservice.getCommentsPaginated(this.pagination.queryRecordsPerPage, 
+          user.uid, 
+          this.pagination.startAfterRecord, 
+          this.pagination.sortBy)
+        .then(
+          res => {
+          // console.log("Comment-List - getCommentsPaginated - current page: " + this.pagination.currentPage
+          //           + " - with startAfterRecord: " + JSON.stringify(this.pagination.startAfterRecord)
+          //           + " - returned records: " + res.length);
 
-                      // store first record in this page in array allowing to pop them off as move backward or reference in index for paging
-//                      this.pagination.setThisPage(this.cservice.lastDoc); //res[0]);
+          // store first record in this page in array allowing to pop them off as move backward or reference in index for paging
+          //                      this.pagination.setThisPage(this.cservice.lastDoc); //res[0]);
 
-                     if (res.length > 0){
-                        // Next page is required only if the additional record over the pagination limit was returned.
-                        if (res.length > this.pagination.displayRecordsPerPage){
-//                          console.log("Comment-List - getCommentsPaginated: Setting next page");
-                          this.pagination.setNextPage(this.cservice.lastDoc); // res[res.length - 2]); // take last record of display as calling startafter;
-                        }
-                        else{
-//                          console.log("Comment-List - getCommentsPaginated: No next page");
-                          this.pagination.noNextPage();
-                        }
-                     }
+          if (res.length > 0){
+          // Next page is required only if the additional record over the pagination limit was returned.
+          if (res.length > this.pagination.displayRecordsPerPage){
+          //                          console.log("Comment-List - getCommentsPaginated: Setting next page");
+          this.pagination.setNextPage(this.cservice.lastDoc); // res[res.length - 2]); // take last record of display as calling startafter;
+          }
+          else{
+          //                          console.log("Comment-List - getCommentsPaginated: No next page");
+          this.pagination.noNextPage();
+          }
+          }
 
-                      // don't display first on next page record, if exists
-                        this.fbcomments = res.slice(0, (this.pagination.displayRecordsPerPage));
-                        this.loading=false;
-                     },
-                    err => {
-                      console.log("Comment-List - getCommentsPaginated - error: " + err);
-                      //this.handleFBQueryError(err);
-                      this.loading=false;
-                    }
-                    );
-     } else {
-      console.error("CommentlistComponent - getCommentsPaginated(): user NOT logged in");
-      this.loading=false;
-    }
+          // don't display first on next page record, if exists
+          this.fbcomments = res.slice(0, (this.pagination.displayRecordsPerPage));
+          this.loading=false;
+          },
+          err => {
+          console.log("Comment-List - getCommentsPaginated - error: " + err);
+          //this.handleFBQueryError(err);
+          this.loading=false;
+          }
+          );
+        }
+        else{ 
+          console.error("CommentlistComponent - getCommentsPaginated(): user NOT logged in");
+          this.loading=false;
+        }
+      });
   } // getCommentsPaginated()
 
   handleFBQueryError(err: any): void

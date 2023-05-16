@@ -24,7 +24,10 @@ https://github.com/angular/angularfire/issues/3290
     "module": "es2020",
     "lib": [
       "es2020",
-      "dom"
+      "dom",
+      "es5",
+      "es6", 
+      "dom.iterable"
     ],
     "useDefineForClassFields": false
   },

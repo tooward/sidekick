@@ -1,6 +1,6 @@
 import { Injectable, NgZone, inject } from '@angular/core';
 import { User } from './user';
-import { Auth } from '@angular/fire/auth';
+import { Auth, connectAuthEmulator } from '@angular/fire/auth';
 
 import * as auth from 'firebase/auth';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
@@ -28,6 +28,9 @@ export class AuthService {
     public router: Router,
     public ngZone: NgZone // NgZone service to remove outside scope warning
   ) {
+    
+    // TODO - compiler flag to remove this in production
+    connectAuthEmulator(this.auth, "http://localhost:9099"); // port set in firebase.json
 
     console.log("AuthService constructor()");
 

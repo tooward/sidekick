@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, query, orderBy, startAfter, where, collectionData, addDoc, deleteDoc, getDocs, getDoc, doc, docData, Timestamp, CollectionReference, queryEqual, DocumentReference, DocumentData, setDoc, limit, QuerySnapshot } from '@angular/fire/firestore';
+import { Firestore, connectFirestoreEmulator, getCountFromServer, collection, query, orderBy, startAfter, where, collectionData, addDoc, deleteDoc, getDocs, getDoc, doc, docData, Timestamp, CollectionReference, queryEqual, DocumentReference, DocumentData, setDoc, limit, QuerySnapshot } from '@angular/fire/firestore';
 import { Observable, throwError, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -50,6 +50,8 @@ lastDoc: any;
   constructor() {
       const commentsCollection = collection(this.firestore, this.commentsCollectionReference);
       this.comments$ = collectionData(commentsCollection) as Observable<OComment[]>;
+
+      connectFirestoreEmulator(this.firestore, 'localhost', 1234);
   }
 
   getComment(commentId: string): Observable<OComment>{
@@ -173,6 +175,21 @@ async updateComment(comment: OComment){
       return this.comments$;
 
   } // getComments()
+
+  async getCommentsCountByUser(userId: string): Promise<number> {
+    console.log("CommentService getCommentsCountByUser() called with user Id: " + userId);
+    try {
+      let count: number;
+      const q = query(collection(this.firestore, this.commentsCollectionReference), where("userId", "==", userId));
+      const querySnapshot = await getCountFromServer(q);
+      count = querySnapshot.data().count;
+      return count;
+    }
+    catch(err){
+      console.log("Error in getCommentsCountByUser() method of comment service: " + err);
+      throw err;
+    }
+  } // end getCommentsCountByUser()
 
   /*
     Using the firestore model it takes three parameters:

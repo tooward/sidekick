@@ -62,6 +62,7 @@
         
         <div *ngIf="pagination && fbcomments && !loading" style="clear:both;">
             <h3>Pagination variables: firestorePagination</h3>
+            <p>Total Records: {{ this.recordCount }} </p>
             <p>Current page:  {{this.pagination.currentPage}}</p>
             <p>Disable next: {{this.pagination.disableNext}}</p>
             <p>Disable previous: {{this.pagination.disablePrevious}}</p>
