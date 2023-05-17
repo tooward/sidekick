@@ -168,51 +168,7 @@ async  getCommentsPaginated(sortByIn?: sortBy, navigationDirection?: number, pag
     if (sortByIn && sortByIn !== this.pagination.defaultSort){
       this.pagination.sortBy = sortByIn;
     }
-
     this.pagination.setNavigation(pageNavigatedTo, navigationDirection);
-
-  // ### Start simple working example of pagination
-
-  //   let res: OComment[] = [];
-
-  //   if (this.lastDoc === undefined){
-  //     const q = query(collection(this.firestore, 'comments'), 
-  //     where("userId", "==", this.authService.userData.uid),
-  //     orderBy("savedTime"),
-  //     limit(this.pagination.queryRecordsPerPage));
-
-  //     const querySnapshot = await getDocs(q);
-  //     console.log("Comment Service - getCommentsPaginated() - Last doc: " + JSON.stringify(this.lastDoc));
-  
-  //     res = querySnapshot.docs.map(a => {
-  //       let data = OComment.plainToClass(a.data());
-  //       data.id = a.id;
-  //       return data;
-  //     });
-
-  //     this.lastDoc = querySnapshot.docs[querySnapshot.docs.length - 2];
-
-  //   }
-  //   else{
-  //     const q = query(collection(this.firestore, 'comments'), 
-  //     where("userId", "==", this.authService.userData.uid),
-  //     orderBy("savedTime"),
-  //     startAfter(this.lastDoc),
-  //     limit(this.pagination.queryRecordsPerPage));
-
-  //     const querySnapshot = await getDocs(q);
-  //     console.log("Comment Service - getCommentsPaginated() - Last doc: " + JSON.stringify(this.lastDoc));
-
-  //     res = querySnapshot.docs.map(a => {
-  //       let data = OComment.plainToClass(a.data());
-  //       data.id = a.id;
-  //       return data;
-  //     });
-  // }
-
-  //   console.log("Comment Service - getCommentsPaginated() - returned records: " + res.length);
-
-  // ### END 
 
     this.auth.onAuthStateChanged(user => {
       if (user != null) {

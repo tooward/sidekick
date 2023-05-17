@@ -1,0 +1,1 @@
+javascript:window.location=%22https://localhost:4200/save?url=%22+encodeURIComponent(document.location)+%22&t=%22+encodeURIComponent(document.title)

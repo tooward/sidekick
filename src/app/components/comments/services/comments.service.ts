@@ -176,6 +176,9 @@ async updateComment(comment: OComment){
 
   } // getComments()
 
+  /*
+   * https://firebase.google.com/docs/firestore/query-data/aggregation-queries
+   */
   async getCommentsCountByUser(userId: string): Promise<number> {
     console.log("CommentService getCommentsCountByUser() called with user Id: " + userId);
     try {

@@ -25,7 +25,7 @@ const routes: Routes = [
   { path: 'edit/:id', component: CommentEditComponent, canActivate: [AuthGuard] },
   { path: 'edit', component: CommentEditComponent, canActivate: [AuthGuard] },
   { path: 'comments', component: CommentlistComponent, canActivate: [AuthGuard] },
-  { path: 'test', component: TestuiComponent, canActivate: [AuthGuard] },
+  { path: 'test', component: TestuiComponent },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent }
 ];
