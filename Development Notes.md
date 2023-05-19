@@ -6,6 +6,7 @@
 - Use issues in repo: https://github.com/tooward/overthetop/issues
 - Need to find out why Anglar Fire is causing build [issues](https://github.com/angular/angularfire/issues/32900). Used this workaround but need to switch back:
 Change tsconfig: "strict": false, "skipLibCheck": true,
+- Would be fun to use the IMAP client to parse out entities in email. https://github.com/mscdex/node-imap
 
 # Chrome Extension
 - If want to put this in as a bookmarklet need to read up on how to build properly for a chrome extension.

@@ -45,6 +45,7 @@ testem.log
 .DS_Store
 Thumbs.db
 shh.json
+/functions/shh.json
 
 # Firebase
 .firebase
