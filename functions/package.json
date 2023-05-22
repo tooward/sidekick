@@ -12,7 +12,6 @@
   "engines": {
     "node": "16"
   },
-  "main": "index.js",
   "dependencies": {
     "busboy": "^1.6.0",
     "chrome-types": "^0.1.194",

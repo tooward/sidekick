@@ -1,6 +1,7 @@
 // The Cloud Functions for Firebase SDK to create Cloud Functions and triggers.
 const {logger} = require("firebase-functions");
 const {onRequest} = require("firebase-functions/v2/https");
+const { doc, setDoc, collection } = require("firebase/firestore"); 
 
 // The Firebase Admin SDK to access Firestore.
 const {initializeApp} = require("firebase-admin/app");
@@ -10,16 +11,11 @@ const {getFirestore} = require("firebase-admin/firestore");
 const language = require("@google-cloud/language");
 const {JWT} = require('google-auth-library');
 const key = require('./shh.json');
+
+// Comms libraries
 const https = require('https');
 const entities = require('entities');
 const Busboy = require('busboy');
-
-// Constants for setting up JWT credentials and calling API
-// const PROJECT_ID = "rock-idiom-386415";
-// const HOST = 'fcm.googleapis.com';
-// const PATH = '/v1/projects/' + PROJECT_ID + '/messages:send';
-// const MESSAGING_SCOPE = 'https://www.googleapis.com/auth/cloud-language';
-// const SCOPES = [MESSAGING_SCOPE];
 
 const types = ['UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION', 'EVENT', 'WORK_OF_ART', 'CONSUMER_GOOD', 'OTHER', 'PHONE_NUMBER', 'ADDRESS']
 
@@ -113,10 +109,24 @@ class WORK_OF_ART extends ENTITY {
     }
 }
 
-// initialize firebase app
-initializeApp();
+String.prototype.hashCode = function() {
+    var hash = 0,
+      i, chr;
+    if (this.length === 0) return hash;
+    for (i = 0; i < this.length; i++) {
+      chr = this.charCodeAt(i);
+      hash = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash + 2147483647 + 1;
+  }
+
 
 console.log("addmessage called");
+
+// initialize firebase app
+const app = initializeApp();
+var db = getFirestore(app);
 
 // Take the text parameter passed to this HTTP endpoint and insert it into
 // Firestore under the path /messages/:documentId/original
@@ -193,6 +203,7 @@ exports.addmessage = onRequest(async (req, res) => {
         return res.status(400).end();
     }
 
+
     // Grab the text parameter & push the new message into Firestore using the Firebase Admin SDK.
     // const pageText = req.query.text;
     const writeSubmission = await getFirestore()
@@ -227,6 +238,9 @@ exports.addmessage = onRequest(async (req, res) => {
 
     entities.forEach(async entity => {
         if (entity.metadata.wikipedia_url && entity.salience > salience) {
+            var key = (entity.metadata.wikipedia_url.hashCode().toString());
+            console.log("Hash of wikipedia URL: " + entity.metadata.wikipedia_url.hashCode());
+
             if (entity.type === 'PERSON'){
                 savedEntities++;
 
@@ -243,11 +257,21 @@ exports.addmessage = onRequest(async (req, res) => {
                 foundIn.title = req.query.title;
                 person.foundIn.push(foundIn);
 
-                const savePerson = await getFirestore()
-                .collection("people")
-                .add({person: JSON.parse(JSON.stringify(person)) });
-                
-                console.log("Saved person"); // JSON.stringify(person) }`);
+                try {
+                    //THIS WORKS!
+                    // const savePerson = await getFirestore()
+                    // .collection("people")
+                    // .add({ person: JSON.parse(JSON.stringify(person)) });
+                    //END THIS WORKS!
+                    
+                    // use set to ensure use of the same key
+                    await getFirestore().collection("people").doc(key).set( JSON.parse(JSON.stringify(person)) );     
+                    console.log("Saved person: " + key);
+                }
+                catch(err){
+                    console.log("Error saving person: " + key + "\nError:" + err);
+                }
+
             }
             else if (entity.type === 'ORGANIZATION'){
                 savedEntities++;
@@ -256,14 +280,20 @@ exports.addmessage = onRequest(async (req, res) => {
                 organization.type = entity.type;
                 organization.name = entity.name;
                 organization.wikipedia_url = entity.metadata.wikipedia_url;
-
                 savedEntityList.push(organization);
 
-                const saveOrganization = await getFirestore()
-                .collection("organizations")
-                .add({organization: JSON.parse(JSON.stringify(organization)) });
+                try {
+                    // use set to ensure use of the same key
+                    await getFirestore().collection("organizations").doc(key).set(JSON.parse(JSON.stringify(organization)));     
+                    console.log("Saved organization: " + key);
 
-                console.log("Saved organization"); // JSON.stringify(organization) }`);
+                    // const saveOrganization = await getFirestore()
+                    // .collection("organizations")
+                    // .add({organization: JSON.parse(JSON.stringify(organization)) });
+                }
+                catch(err){
+                    console.log("Error saving organization: " + key + "\nError:" + err);
+                }
             }
             else if (entity.type === 'CONSUMER_GOOD'){
                 savedEntities++;
@@ -272,14 +302,19 @@ exports.addmessage = onRequest(async (req, res) => {
                 consumer_good.type = entity.type;
                 consumer_good.name = entity.name;
                 consumer_good.wikipedia_url = entity.metadata.wikipedia_url;
-
                 savedEntityList.push(consumer_good);
 
-                const saveConsumerGood = await getFirestore()
-                .collection("consumergoods")
-                .add({consumer_good: JSON.parse(JSON.stringify(consumer_good)) });
-
-                console.log(`Saved consumer good ${ JSON.stringify(consumer_good) }`);
+                try {
+                    // use set to ensure use of the same key
+                    await getFirestore().collection("consumergoods").doc(key).set(JSON.parse(JSON.stringify(consumer_good)));     
+                    console.log("Saved consumer_good: " + key);
+                    // const saveConsumerGood = await getFirestore()
+                    // .collection("consumergoods")
+                    // .add({consumer_good: JSON.parse(JSON.stringify(consumer_good)) });
+                }
+                catch(err){
+                    console.log("Error saving consumer_good: " + key + "\nError:" + err);
+                }
             }
             else if (entity.type === 'WORK_OF_ART'){
                 savedEntities++;
@@ -288,14 +323,20 @@ exports.addmessage = onRequest(async (req, res) => {
                 work_of_art.type = entity.type;
                 work_of_art.name = entity.name;
                 work_of_art.wikipedia_url = entity.metadata.wikipedia_url;
-
                 savedEntityList.push(work_of_art);
 
-                const saveWorkOfArt = await getFirestore()
-                .collection("workofarts")
-                .add({work_of_art: JSON.parse(JSON.stringify(work_of_art)) });
+                try {
+                    // use set to ensure use of the same key
+                    await getFirestore().collection("workofarts").doc(key).set(JSON.parse(JSON.stringify(work_of_art)));     
+                    console.log("Saved consumer_good: " + key);
 
-                console.log(`Saved work of art ${ JSON.stringify(work_of_art) }`);
+                    // const saveWorkOfArt = await getFirestore()
+                    // .collection("workofarts")
+                    // .add({work_of_art: JSON.parse(JSON.stringify(work_of_art)) });
+                }
+                catch(err){
+                    console.log("Error saving work of art: " + key + "\nError:" + err);
+                }
             }
         }
         else  if ((entity.type === 'ADDRESS' || entity.type === 'LOCATION') && entity.salience > salience){
@@ -318,7 +359,7 @@ exports.addmessage = onRequest(async (req, res) => {
 
                 const saveLocation = await getFirestore()
                 .collection("locations")
-                .add({location: JSON.parse(JSON.stringify(location)) });
+                .add( JSON.parse(JSON.stringify(location)) );
 
                 console.log("Saved location ${ location.name }" ); //JSON.stringify(location) }`);
             }
@@ -336,7 +377,7 @@ exports.addmessage = onRequest(async (req, res) => {
 
             const savePhoneNumber = await getFirestore()
             .collection("phonenumbers")
-            .add({phone_number: JSON.parse(JSON.stringify(phone_number)) });
+            .add( JSON.parse(JSON.stringify(phone_number)) );
 
             console.log(`Saved phone number ${ JSON.stringify(phone_number) }`);
         }
