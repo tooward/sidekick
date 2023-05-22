@@ -1,0 +1,28 @@
+@import "~bootstrap/dist/css/bootstrap.min.css";
+.sidekick-container{
+    min-width: 500px;
+}
+.sidekick-container .card{
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
+}
+.card-header{
+    background-color: rgba(255, 255, 255, 0.21);
+    border-bottom: 2px solid;
+}
+.card-title{
+    display: inline-block;
+    font-size: 18px;
+    margin: 0;
+    line-height: 1
+}
+body{
+    width: 300px;
+}
+.hidden {
+    display: none;
+}
+.visible {
+    display: block;
+}

@@ -1,0 +1,30 @@
+{
+  "name": "sidekick",
+  "version": "1.0.0",
+  "description": "Chrome Extension for saving entities.",
+  "main": "./scripts/popup.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "watch": "webpack --watch"
+  },
+  "author": "Mike Ward",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^5.2.3",
+    "firebase": "^9.22.0",
+    "jquery": "^3.4.1",
+    "mustache": "^4.2.0"
+  },
+  "devDependencies": {
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.7.4",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.5.1",
+    "style-loader": "^3.3.3",
+    "webpack": "^5.83.1",
+    "webpack-cli": "^5.1.1",
+    "webpack-dev-server": "^4.15.0"
+  }
+}
