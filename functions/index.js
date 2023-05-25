@@ -1,3 +1,27 @@
+/*
+// Share class definitions with the extension
+// import { ENTITY, PERSON, LOCATION, ORGANIZATION, CONSUMER_GOOD, WORK_OF_ART} from './entities.js';
+
+import { logger } from "firebase-functions";
+import { onRequest } from "firebase-functions/v2/https";
+import { doc, setDoc, collection } from "firebase/firestore"; 
+
+// The Firebase Admin SDK to access Firestore.
+import { initializeApp } from "firebase-admin/app";
+import { getFirestore }  from "firebase-admin/firestore";
+
+// The Cloud Natural Language API to analyze the text.
+import language  from "@google-cloud/language";
+// import { key } from './shh.json' assert { type: 'json' };
+
+// Comms libraries
+import https from 'https';
+import Busboy from 'busboy';
+
+
+// Share class definitions with the extension
+// const { ENTITY, PERSON, LOCATION, ORGANIZATION, CONSUMER_GOOD, WORK_OF_ART} = require('../extension/src/scripts/entities.js');
+*/
 // The Cloud Functions for Firebase SDK to create Cloud Functions and triggers.
 const {logger} = require("firebase-functions");
 const {onRequest} = require("firebase-functions/v2/https");
@@ -14,101 +38,7 @@ const key = require('./shh.json');
 
 // Comms libraries
 const https = require('https');
-const entities = require('entities');
 const Busboy = require('busboy');
-
-const types = ['UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION', 'EVENT', 'WORK_OF_ART', 'CONSUMER_GOOD', 'OTHER', 'PHONE_NUMBER', 'ADDRESS']
-
-class ENTITY {
-    id;
-    type;
-    foundIn;
-}
-
-class entityFoundIn {
-    url;
-    title;
-    domain;
-}
-
-class LOCATION extends ENTITY {
-    name;
-    street_number;
-    locality;
-    street_name;
-    postal_code;
-    country;
-    broad_region; // administrative area, such as the state, if detected
-    narrow_region; // smaller administrative area, such as county, if detected
-    sublocality; //  used in Asian addresses to demark a district within a city, if detected
-    wikipedia_url;
-
-    constructor() {
-        super();
-        this.type = 'LOCATION';
-    }
-
-    isValid() {
-        if (this.street_number || this.locality || this.street_name 
-         || this.postal_code || this.country || this.broad_region 
-         || this.narrow_region || this.sublocality)
-            return true;
-        else
-            return false;
-    }
-}
-
-class ORGANIZATION extends ENTITY {
-    name;
-    wikipedia_url;
-
-    constructor() {
-        super();
-        this.type = 'ORGANIZATION';
-    }
-}
-
-class CONSUMER_GOOD extends ENTITY {
-    name;
-    wikipedia_url;
-
-    constructor() {
-        super();
-        this.type = 'CONSUMER_GOOD';
-    }
-}
-
-class PHONE_NUMBER extends ENTITY {
-    number;
-    national_prefix;
-    area_code;
-    extension;
-
-    constructor() {
-        super();
-        this.type = 'PHONE_NUMBER';
-    }
-}
-
-class PERSON extends ENTITY {
-    name;
-    wikipedia_url;
-
-    constructor() {
-        super();
-        this.type = 'PERSON';
-    }
-}
-
-class WORK_OF_ART extends ENTITY {
-    name;
-    wikipedia_url;
-
-    constructor() {
-        super();
-        this.type = 'WORK_OF_ART';
-    }
-}
 
 String.prototype.hashCode = function() {
     var hash = 0,
@@ -194,9 +124,9 @@ exports.addmessage = onRequest(async (req, res) => {
             foundIn.url = req.query.url;
             foundIn.title = req.query.title;
 
-            let savedEntity = await saveNLPEntity(entities[i], foundIn);
-            if (savedEntity){
-                console.log("## 4. Saved entity: " + savedEntity.name);
+            let savedEntity = await createEntityFromNLPResults(entities[i], foundIn);
+            if (savedEntity) {
+                console.log("## 4. Created entity: " + savedEntity.name);
                 savedEntityList.push(savedEntity);
             }
         }
@@ -223,9 +153,14 @@ exports.addmessage = onRequest(async (req, res) => {
     }
   });
 
-async function saveNLPEntity(entity, foundIn) {
-    var key = (entity.metadata.wikipedia_url.hashCode().toString());
-
+  // Creates an entity from the a single result from NLP result set
+  // Refactored to remove the save which is now only done on post from client
+async function createEntityFromNLPResults(entity, foundIn) {
+    let key;
+    if (entity.metadata.wikipedia_url) {
+        key = (entity.metadata.wikipedia_url.hashCode().toString());
+    }
+        
     if (entity.type === 'PERSON'){
 
         var person = new PERSON();
@@ -233,27 +168,29 @@ async function saveNLPEntity(entity, foundIn) {
         person.type = entity.type ? entity.type : 'PERSON';
         person.name = entity.name ? entity.name : '';
         person.wikipedia_url = entity.metadata.wikipedia_url ? entity.metadata.wikipedia_url : '';
-        person.foundIn = [];
 
         if (foundIn){
+            person.foundIn = [];
             person.foundIn.push(foundIn);
         }
+        return person;
 
-        try {
-            //THIS WORKS!
-            // const savePerson = await getFirestore()
-            // .collection("people")
-            // .add({ person: JSON.parse(JSON.stringify(person)) });
-            //END THIS WORKS!
+
+        // try {
+        //     //THIS WORKS!
+        //     // const savePerson = await getFirestore()
+        //     // .collection("people")
+        //     // .add({ person: JSON.parse(JSON.stringify(person)) });
+        //     //END THIS WORKS!
             
-            // use set to ensure use of the same key
-            await getFirestore().collection("people").doc(key).set( JSON.parse(JSON.stringify(person)) );     
-            console.log("## 3. Saved person: " + key);
-            return person;
-        }
-        catch(err){
-            console.log("Error saving person: " + key + "\nError:" + err);
-        }
+        //     // use set to ensure use of the same key
+        //     await getFirestore().collection("people").doc(key).set( JSON.parse(JSON.stringify(person)) );     
+        //     console.log("## 3. Saved person: " + key);
+        //     return person;
+        // }
+        // catch(err){
+        //     console.log("Error saving person: " + key + "\nError:" + err);
+        // }
     }
     else if (entity.type === 'ORGANIZATION'){
 
@@ -263,20 +200,26 @@ async function saveNLPEntity(entity, foundIn) {
         organization.name = entity.name;
         organization.wikipedia_url = entity.metadata.wikipedia_url;
 
-        try {
-            // use set to ensure use of the same key
-            await getFirestore().collection("organizations").doc(key).set(JSON.parse(JSON.stringify(organization)));     
-            console.log("## 3. Saved organization: " + key);
-            return organization;
-
-            // const saveOrganization = await getFirestore()
-            // .collection("organizations")
-            // .add({organization: JSON.parse(JSON.stringify(organization)) });
-        }
-        catch(err){
-            console.log("Error saving organization: " + key + "\nError:" + err);
+        if (foundIn){
+            organization.foundIn = [];
+            organization.foundIn.push(foundIn);
         }
 
+        return organization;
+
+        // try {
+        //     // use set to ensure use of the same key
+        //     await getFirestore().collection("organizations").doc(key).set(JSON.parse(JSON.stringify(organization)));     
+        //     console.log("## 3. Saved organization: " + key);
+        //     return organization;
+
+        //     // const saveOrganization = await getFirestore()
+        //     // .collection("organizations")
+        //     // .add({organization: JSON.parse(JSON.stringify(organization)) });
+        // }
+        // catch(err){
+        //     console.log("Error saving organization: " + key + "\nError:" + err);
+        // }
     }
     else if (entity.type === 'CONSUMER_GOOD'){
 
@@ -286,19 +229,26 @@ async function saveNLPEntity(entity, foundIn) {
         consumer_good.name = entity.name;
         consumer_good.wikipedia_url = entity.metadata.wikipedia_url;
 
-        try {
-            // use set to ensure use of the same key
-            await getFirestore().collection("consumergoods").doc(key).set(JSON.parse(JSON.stringify(consumer_good)));     
-            console.log("## 3. Saved consumer_good: " + key);
-            return consumer_good;
+        if (foundIn){
+            consumer_good.foundIn = [];
+            consumer_good.foundIn.push(foundIn);
+        }
+        
+        return consumer_good;
 
-            // const saveConsumerGood = await getFirestore()
-            // .collection("consumergoods")
-            // .add({consumer_good: JSON.parse(JSON.stringify(consumer_good)) });
-        }
-        catch(err){
-            console.log("Error saving consumer_good: " + key + "\nError:" + err);
-        }
+        // try {
+        //     // use set to ensure use of the same key
+        //     await getFirestore().collection("consumergoods").doc(key).set(JSON.parse(JSON.stringify(consumer_good)));     
+        //     console.log("## 3. Saved consumer_good: " + key);
+        //     return consumer_good;
+
+        //     // const saveConsumerGood = await getFirestore()
+        //     // .collection("consumergoods")
+        //     // .add({consumer_good: JSON.parse(JSON.stringify(consumer_good)) });
+        // }
+        // catch(err){
+        //     console.log("Error saving consumer_good: " + key + "\nError:" + err);
+        // }
     }
     else if (entity.type === 'WORK_OF_ART'){
 
@@ -308,26 +258,33 @@ async function saveNLPEntity(entity, foundIn) {
         work_of_art.name = entity.name;
         work_of_art.wikipedia_url = entity.metadata.wikipedia_url;
 
-        try {
-            // use set to ensure use of the same key
-            await getFirestore().collection("workofarts").doc(key).set(JSON.parse(JSON.stringify(work_of_art)));     
-            console.log("## 3. Saved consumer_good: " + key);
-            return work_of_art;
+        if (foundIn){
+            work_of_art.foundIn = [];
+            work_of_art.foundIn.push(foundIn);
+        }
 
-            // const saveWorkOfArt = await getFirestore()
-            // .collection("workofarts")
-            // .add({work_of_art: JSON.parse(JSON.stringify(work_of_art)) });
-        }
-        catch(err){
-            console.log("Error saving work of art: " + key + "\nError:" + err);
-        }
+        return work_of_art;
+
+        // try {
+        //     // use set to ensure use of the same key
+        //     await getFirestore().collection("workofarts").doc(key).set(JSON.parse(JSON.stringify(work_of_art)));     
+        //     console.log("## 3. Saved consumer_good: " + key);
+        //     return work_of_art;
+
+        //     // const saveWorkOfArt = await getFirestore()
+        //     // .collection("workofarts")
+        //     // .add({work_of_art: JSON.parse(JSON.stringify(work_of_art)) });
+        // }
+        // catch(err){
+        //     console.log("Error saving work of art: " + key + "\nError:" + err);
+        // }
     }
     else {
         return null;
     }
 } 
 
-function processPOSTForm(){
+function processPOSTForm() {
 
 //    console.log('** REQUEST **' + req.query.url + ' ' + req.query.title + ' ' + req.query.text + ' ' + req.query.salience);
 
@@ -384,7 +341,7 @@ function processPOSTForm(){
 // Firestore under the path /messages/:documentId/
 // https://firebase.google.com/docs/functions/http-events?gen=2nd
 exports.saveentity = onRequest(async (req, res) => {
-    console.log("## 1. saveentity() called");
+    console.log("## saveentity() called ##");
 
     if (req.method !== 'POST') {
         // Return a "method not allowed" error
@@ -392,30 +349,30 @@ exports.saveentity = onRequest(async (req, res) => {
         // return res.status(405).end();
     }
 
-    console.log("-- Request method: " + req.method);
+    console.log("Request method: " + req.method);
 
     // This code will process each non-file field in the form.
     let entityJSON = req.query.entity;
 //    console.log("Entity JSON: " + entityJSON);
     if (!entityJSON) {
-        console.log("-- END - No text found in post");
+        console.log("END - No text found in post");
         return res.status(400).end();
     }
 
     var entity = new ENTITY();
     entity = JSON.parse(entityJSON);
-    console.log("2. Entity received: " + JSON.stringify(entity));
+    console.log("Entity posted for save: " + JSON.stringify(entity));
 
-    let savedEntity = await saveEntity(entity);
+    let status = await saveEntity(entity);
 
-    if (savedEntity){
-        console.log("3. Saved entity: " + savedEntity.name);
+    if (status){
+        console.log("Saved entity: " + entity.name);
     }
 
     // Send back the results
     try {
-        res.status(200).send("Saved entity " + savedEntity.name);
-        console.log("4. Returned success 200" );
+        res.status(200).send("Saved entity. id: " + entity.id + " name: " + entity.name);
+        console.log("Returned success 200" );
     }
     catch (err) {
         console.log("Error: " + err);
@@ -424,9 +381,27 @@ exports.saveentity = onRequest(async (req, res) => {
   });
 
 async function saveEntity(entity) {
+    try {
+        if (entity.id === undefined || entity.id === null || entity.id === ''){
+            await getFirestore().collection(entity.collection).add({ person: JSON.parse(JSON.stringify(entity)) });
+            console.log("Saved entity (w/ add method to generate id in FB). type: " + entity.type + " name: " + entity.name);
+        }
+        else {
+            // use set to ensure use of the same key
+            await getFirestore().collection(entity.collection).doc(entity.id).set( JSON.parse(JSON.stringify(entity)) );
+            console.log("Saved entity (w/ set method as id existed already). type: " + entity.type + " id: " + entity.id + " name: " + entity.name);
+            return true;
+        }
+    }
+    catch(err){
+        console.log("Error saving entity: " + entity.id + "\nError:" + err);
+        return false;
+    }
 
+/*
     if (entity.type === 'PERSON'){
         var person = new PERSON();
+        
         person.id = key;
         person.type = entity.type ? entity.type : 'PERSON';
         person.name = entity.name ? entity.name : '';
@@ -498,4 +473,119 @@ async function saveEntity(entity) {
     else {
         return null;
     }
-} 
+    */
+} // end saveEntity()
+
+/*** ENTITIES ****/
+class entityFoundIn {
+    url;
+    title;
+    domain;
+}
+
+class ENTITY {
+    type;
+    collection;
+    id;
+    name;
+    wikipedia_url;
+    foundIn;
+
+    // Creates a unique ID for the entity based on the wikipedia URL.
+    // If there is no wikipedia URL uses GUID generated on the server.
+    genereateId () {
+        var hash = 0, i, chr;
+        if (this.length === 0) return hash;
+
+        for (i = 0; i < this.length; i++) {
+            chr = this.charCodeAt(i);
+            hash = ((hash << 5) - hash) + chr;
+            hash |= 0; // Convert to 32bit integer
+        }
+        return hash + 2147483647 + 1;
+    }
+
+    genericToClass(element){
+        this.id = element.id ? element.id : null;
+        this.name = element.name ? element.name : null;
+        this.wikipedia_url = element.wikipedia_url ? element.wikipedia_url : null;
+        this.foundIn = element.foundIn ? element.foundIn : null;
+    }
+
+}
+
+class PERSON extends ENTITY {
+    constructor() {
+        super();
+        this.type = 'PERSON';
+        this.collection = "people";
+    }
+}
+
+class LOCATION extends ENTITY {
+    street_number;
+    locality;
+    street_name;
+    postal_code;
+    country;
+    broad_region; // administrative area, such as the state, if detected
+    narrow_region; // smaller administrative area, such as county, if detected
+    sublocality; //  used in Asian addresses to demark a district within a city, if detected
+
+    constructor() {
+        super();
+        this.type = 'LOCATION';
+        this.collection = "locations";
+    }
+
+    genericToClass(element){
+        super.genericToClass(element);
+        this.street_number = element.street_number ? element.street_number : null;
+        this.locality = element.locality ? element.locality : null;
+        this.street_name = element.street_name ? element.street_name : null;
+        this.postal_code = element.postal_code ? element.postal_code : null;
+        this.country = element.country ? element.country : null;
+        this.broad_region = element.broad_region ? element.broad_region : null;
+        this.narrow_region = element.narrow_region ? element.narrow_region : null;
+        this.sublocality = element.sublocality ? element.sublocality : null;
+    }
+
+    isValid() {
+        if (this.street_number || this.locality || this.street_name 
+         || this.postal_code || this.country || this.broad_region 
+         || this.narrow_region || this.sublocality)
+            return true;
+        else
+            return false;
+    }
+}
+
+class ORGANIZATION extends ENTITY {
+
+    constructor() {
+        super();
+        this.type = 'ORGANIZATION';
+        this.collection = "organizations";
+    }
+}
+
+class CONSUMER_GOOD extends ENTITY {
+
+    constructor() {
+        super();
+        this.type = 'CONSUMER_GOOD';
+        this.collection = "consumer_goods";
+    }
+}
+
+class WORK_OF_ART extends ENTITY {
+
+    constructor() {
+        super();
+        this.type = 'WORK_OF_ART';
+        this.collection = "artworks";
+    }
+}
+
+
+/***  END ENTITIES ***/
