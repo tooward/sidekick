@@ -3,6 +3,11 @@
     "version": "0.1",
     "description": "Save the web",
     "manifest_version": 3,
+    "icons": {
+      "16": "./assets/images/brain16.png",
+      "48": "./assets/images/brain48.png",
+      "128": "./assets/images/brain128.png"
+    },
     "background" : {
         "service_worker": "./scripts/background.js"
     },

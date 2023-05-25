@@ -21,7 +21,7 @@ module.exports = {
         new CopyPlugin({
             patterns: [
             { from: './src/manifest.json', to:'./' },
-            { from: './src/assets/images/*', to:'./assets/images/' },
+            { from: './src/assets/images/', to:'./assets/images/' },
             { from: './src/scripts/background.js', to:'./scripts/' },
             { from: './src/scripts/content.js', to:'./scripts/' },
             { from: './src/assets/css/style.css', to:'./assets/css/' }
@@ -40,8 +40,30 @@ module.exports = {
                 use: ['file-loader']
             },
             {
-                test: /\.css$/,
-                use: ['style-loader', 'css-loader']
+                test: /\.(scss)$/,
+                include: path.resolve(__dirname, 'src'),
+                use: [{ loader: 'style-loader' },
+                    { 
+                        loader: 'css-loader'},
+                    { // Loader for webpack to process CSS with PostCSS
+                        loader: 'postcss-loader',
+                        options: {
+                        postcssOptions: {
+                            plugins: () => [
+                            autoprefixer
+                            ]}}
+                    },
+                    {// Loads a SASS/SCSS file and compiles it to CSS
+                        loader: 'sass-loader'
+                    }
+                    ]
+            },
+            {
+                test: /\.(png|svg|jpg|gif)$/,
+                include: path.resolve(__dirname, 'src'),
+                use: [
+                    'file-loader'
+                ]
             }
         ]
     }
