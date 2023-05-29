@@ -3,8 +3,8 @@ import { Firestore, connectFirestoreEmulator, getCountFromServer, collection, qu
 import { Observable, throwError, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { firestorePagination } from '../pagination/firestorepagination';
-import { userPagination } from '../pagination/userpagination';
+import { firestorePagination } from '../../pagination/firestorepagination';
+import { userPagination } from '../../pagination/userpagination';
 import { OComment } from '../data/comment';
 
 @Injectable({
@@ -50,8 +50,6 @@ lastDoc: any;
   constructor() {
       const commentsCollection = collection(this.firestore, this.commentsCollectionReference);
       this.comments$ = collectionData(commentsCollection) as Observable<OComment[]>;
-
-      connectFirestoreEmulator(this.firestore, 'localhost', 1234);
   }
 
   getComment(commentId: string): Observable<OComment>{
@@ -70,8 +68,7 @@ lastDoc: any;
           comment.savedTime = new Date(Date.now());
         }
               
-        console.log("Date saving as : " + JSON.stringify(comment.savedTime));  
-        console.log("Document JSON: " + JSON.stringify(comment));
+        console.log("CommentService - createComment(): Document JSON: " + JSON.stringify(comment));
   
         try {
           return addDoc(collection(this.firestore, this.commentsCollectionReference), JSON.parse( JSON.stringify(comment)));
@@ -181,6 +178,7 @@ async updateComment(comment: OComment){
    */
   async getCommentsCountByUser(userId: string): Promise<number> {
     console.log("CommentService getCommentsCountByUser() called with user Id: " + userId);
+
     try {
       let count: number;
       const q = query(collection(this.firestore, this.commentsCollectionReference), where("userId", "==", userId));

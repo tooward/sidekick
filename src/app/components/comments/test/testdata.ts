@@ -2,6 +2,7 @@ import * as faker from '@faker-js/faker'
 import { User } from '../../usermgt/services/user';
 import { OComment } from '../data/comment';
 import { oPlace } from '../data/place';
+import { ENTITY } from '../../entities/data/entities';
 
 export interface iTestData {
     createTestUser(userNameIn?: string, passwordIn?: string ): User;
@@ -9,16 +10,17 @@ export interface iTestData {
     createTestComments(count: number, userId: string): Array<OComment>; 
     createTestCommentForUser(userId: string): OComment;
     createRandomLocation(): oPlace;
+    createTestEntity(type: string): ENTITY;
+    createTestEntities(count: number): Array<ENTITY>;
 }
 
 export class testData implements iTestData {
 
-    private places: Array<oPlace>; // store places so can be reused rather than having only single instances of places
+    private places: Array<oPlace>; // store places so they can be reused rather than having only single instances of places
     private placesCounter: number;
     private randomCommentCount: boolean = true;
 
-    constructor(
-    ){
+    constructor(){
         this.placesCounter = 0;
     }
 
@@ -84,6 +86,7 @@ export class testData implements iTestData {
         for (var j=0; j < Math.round(Math.random()); j++){
             testComment.labels[0] = faker.faker.random.word();
         }
+
         testComment.location = this.createRandomLocation();
         testComment.comment = faker.faker.lorem.paragraph(Math.random() * 10);
         testComment.url = faker.faker.internet.url();
@@ -140,6 +143,63 @@ export class testData implements iTestData {
            result += characters.charAt(Math.floor(Math.random() * charactersLength));
         }
         return result;
+     }
+
+     public createTestEntity(type: string, userId?: string): ENTITY {
+        var entity: ENTITY = new ENTITY();
+
+        if (userId)
+            entity.userId = userId;
+
+        entity.savedTime = new Date();
+        entity.updatedTime = new Date();
+        entity.collection = "entities";
+        entity.wikipedia_url = faker.faker.internet.url();
+
+        if (type == "PERSON"){
+            entity.type = "PERSON";
+            entity.name = faker.faker.name.firstName() + faker.faker.name.lastName();
+        }
+        else if (type == "LOCATION"){
+            entity.type = "LOCATION";
+            entity.name = faker.faker.address.city();
+        }
+        else if (type == "ORGANIZATION")
+        {
+            entity.type = "ORGANIZATION";
+            entity.name = faker.faker.company.name();
+        }
+        else if (type == "CONSUMER_GOOD"){
+            entity.type = "CONSUMER_GOOD";
+            entity.name = faker.faker.commerce.productName();
+        }
+        else if (type == "WORK_OF_ART"){
+            entity.type = "WORK_OF_ART";
+            entity.name = faker.faker.commerce.productName();
+        }
+
+        return entity;
+     }
+
+     public createTestEntities(count: number, userId?: string): Array<ENTITY>{
+
+        var entities: Array<ENTITY> = new Array<ENTITY>();
+        for (let i = 0; i < count; i++) {
+            entities.push(this.createTestEntity(this.generateRandomEntityId(), userId ? userId : null));
+        }
+        return entities;
+     }
+
+     public generateRandomEntityId(): string{
+        var entityList = new Array<string>();
+        entityList.push("PERSON");
+        entityList.push("LOCATION");
+        entityList.push("ORGANIZATION");
+        entityList.push("CONSUMER_GOOD");
+        entityList.push("WORK_OF_ART");
+        var type = entityList[Math.floor(Math.random() * entityList.length)];
+
+        return type;
      }
 
 }

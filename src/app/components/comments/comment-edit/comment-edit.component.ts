@@ -14,7 +14,6 @@ import { CommentService } from '../services/comments.service';
 // Firebase related imports
 import { Firestore, collection, collectionData, addDoc } from '@angular/fire/firestore';
 
-
 @Component({
   selector: 'app-commentnewedit',
   templateUrl: './comment-edit.component.html',

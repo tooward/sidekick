@@ -26,11 +26,10 @@ export class AuthService {
   constructor(
     public afAuth: AngularFireAuth, // Inject Firebase auth service
     public router: Router,
-    public ngZone: NgZone // NgZone service to remove outside scope warning
-  ) {
-    
+    public ngZone: NgZone) // NgZone service to remove outside scope warning 
+  {
     // TODO - compiler flag to remove this in production
-    connectAuthEmulator(this.auth, "http://localhost:9099"); // port set in firebase.json
+//    connectAuthEmulator(this.auth, "http://localhost:9099"); // port set in firebase.json
 
     console.log("AuthService constructor()");
 

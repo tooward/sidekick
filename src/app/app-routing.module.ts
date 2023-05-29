@@ -11,6 +11,9 @@ import { HomeComponent } from './components/home/home.component';
 import { CommentComponent } from './components/comments/comment/comment.component';
 import { CommentEditComponent } from './components/comments/comment-edit/comment-edit.component';
 import { CommentlistComponent } from './components/comments/comment-list/comment-list.component';
+import { EntityComponent } from './components/entities/entity/entity.component';
+import { EntityEditComponent } from './components/entities/entity-edit/entity-edit.component';
+import { EntityListComponent } from './components/entities/entity-list/entity-list.component';
 import { AuthGuard } from './components/usermgt/guard/auth.guard';
 import { TestuiComponent } from './components/comments/test/testui.component';
 
@@ -25,6 +28,9 @@ const routes: Routes = [
   { path: 'edit/:id', component: CommentEditComponent, canActivate: [AuthGuard] },
   { path: 'edit', component: CommentEditComponent, canActivate: [AuthGuard] },
   { path: 'comments', component: CommentlistComponent, canActivate: [AuthGuard] },
+  { path: 'entity/:id', component: EntityComponent, canActivate: [AuthGuard] },
+  { path: 'entity-edit/:id', component: EntityEditComponent, canActivate: [AuthGuard] },
+  { path: 'entities', component: EntityListComponent, canActivate: [AuthGuard] },  
   { path: 'test', component: TestuiComponent },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent }

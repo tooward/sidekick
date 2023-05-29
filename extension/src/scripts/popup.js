@@ -62,7 +62,6 @@ function getPostToFunction(result) {
                 }
                 else {
                     console.log("No results found");
-                    document.getElementById('resultsrow').display = "block";
                     document.getElementById("results").innerHTML = "No results found";
                 }
             }
@@ -77,7 +76,7 @@ function getPostToFunction(result) {
 function processResponse(resp) {
 
     // TEMPLATES
-    var elementTemplate = '<div class="entityBox"><p class="entityTitle"><a href="{{wikipedia_url}}">{{name}}</a></p><button id="{{id}}" type="button" class="btn btn-primary">Save</button></div>';
+    var elementTemplate = '<div class="entityBox"><p class="entityTitle"><img src="./assets/images/{{type}}.svg" class="card-image"/><a href="{{wikipedia_url}}" target=”_blank”>{{name}}</a></p><button id="{{id}}" type="button" class="btn btn-primary">Save</button></div>';
 
     console.log("#5. Processing results count: " + resp.savedEntityList.length);
 
@@ -95,7 +94,7 @@ function processResponse(resp) {
             node.innerHTML = output;
             document.getElementById('people').appendChild(node);
             addListeners(person.id);
-        } 
+        }
         else if (element.type == "LOCATION"){
             var location = new LOCATION();
             location.genericToClass(element);

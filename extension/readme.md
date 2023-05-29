@@ -7,6 +7,11 @@
 - Refactor code per [this](https://dev.to/paulasantamaria/chrome-extensions-reusing-code-3f1g) article.
 - Function needs to import the ES6 modules from the extension. Currently it is not able to find the modules. Need to figure out how to do this.
 
+## Roadmap
+- [ ] Move more NLP to in-browser functions where possible. [This](https://blog.logrocket.com/natural-language-processing-node-js/) is a good article introducing various libraries, primarily the [Natural](https://naturalnode.github.io/natural/) library. Note that Firebase is introducing [Python based functions](https://github.com/firebase/firebase-functions-python#) opening up the majority of NLP libraries such as (NLTK](https://github.com/nltk/nltk).
+- [ ] Integreate [wink](https://github.com/winkjs/wink-nlp-utils) for name detection in page without using server posting.
+- [ ] Address idenfiticaction. Good introduction to the various libraries and techniques [here](https://khadkechetan.medium.com/address-extraction-and-parser-with-nlp-4d3db7b9535d).
+
 ## Summary
 
 The extension has the following parts:

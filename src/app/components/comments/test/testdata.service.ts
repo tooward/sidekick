@@ -1,15 +1,18 @@
 import { Injectable, inject, NgZone } from '@angular/core';
 
 // Firebase related imports
-import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { Auth, createUserWithEmailAndPassword, connectAuthEmulator } from '@angular/fire/auth';
 import { Firestore, collectionData, addDoc } from '@angular/fire/firestore';
 import { collection, doc, setDoc } from "firebase/firestore";
 
+// Data related services
 import { CommentService } from '../services/comments.service';
 import { User } from '../../usermgt/services/user';
 import { AuthService } from '../../usermgt/services/auth.service';
-import { testUserComments } from './testUserComments';
+import { testUserData } from './testUserComments';
 import { testData } from './testdata';
+import { EntitiesService } from '../../entities/services/entities.service'; 
+import { ENTITY, PERSON, LOCATION, ORGANIZATION, CONSUMER_GOOD, WORK_OF_ART } from '../../entities/data/entities';
 
 /*
 This class helps to generate test data for bootstrapping a unit test or simply facilitating manual testing. 
@@ -28,24 +31,27 @@ export class testDataService {
     private auth: Auth = inject(Auth);
 
     constructor(
-        public authService: AuthService,
-        public commentService: CommentService
+//        public afAuth: Auth, // Inject Firebase auth service
+//        public authService: AuthService,
+        public commentService: CommentService,
+        public entitiesService: EntitiesService,
     ){ 
+//        connectAuthEmulator(this.auth, "http://localhost:9099"); // port set in firebase.json
         this.td = new testData();
     }
 
-    async createTestUsersAndData(userCount: number, commentCount: number, saveToFirebase: boolean): Promise<Array<testUserComments>> {
+    async createTestUsersAndData(userCount: number, commentCount: number, saveToFirebase: boolean): Promise<Array<testUserData>> {
     /// <summary></summary>
     /// <param name="count" type="number"></param>
     /// <returns type="Promise<Array<OComment>>"></returns>  
         try{
             console.log("** START CREATE TEST DATA & USERS **");
 
-            var testUsersWithComments = new Array<testUserComments>(userCount);
+            var testUsersWithComments = new Array<testUserData>(userCount);
 
             for (let i = 0; i < userCount; i++) {
-                await this.createTestUserAndComments(commentCount, saveToFirebase)
-                        .then((result:testUserComments) => testUsersWithComments.push(result))
+                await this.createTestUserAndData(commentCount, saveToFirebase)
+                        .then((result:testUserData) => testUsersWithComments.push(result))
                         .catch((error: Error) => console.log(error.message));
             }
 
@@ -57,7 +63,7 @@ export class testDataService {
         }
     }
 
-    async createTestUserAndComments(commentCount: number, saveToFirebase: boolean, userName?: string): Promise<testUserComments> {
+    async createTestUserAndData(commentCount: number, saveToFirebase: boolean, userName?: string): Promise<testUserData> {
     /// <summary>Creates a single user and the inputted number of requirements for that user. Optionally saves those to Firebase.</summary>
     /// <param name="commentCount" type="number">Number of comments to create for the user.</param>
     /// <param name="saveToFirebase" type="boolean">Save to firebase instance.</param>
@@ -73,7 +79,7 @@ export class testDataService {
      *
      */
         try {
-            var userAndComments: testUserComments = new testUserComments();
+            var userAndComments: testUserData = new testUserData();
             var testdata: testData = new testData();
             
             // Create user, saves to FB potentially and user must be logged in to create comments, so must await
@@ -86,31 +92,43 @@ export class testDataService {
 
             // User will be logged in on creation, so we go ahead and create a bunch of test comments for them
             userAndComments.comments = testdata.createTestComments(commentCount, userAndComments.user.uid);
-//             userAndComments.comments = testdata.createTestComments((Math.round(Math.random() * commentCount)), userAndComments.user.uid);
+            userAndComments.entities = testdata.createTestEntities(commentCount, userAndComments.user.uid);
 
             if (saveToFirebase){
                 // firebase login must reflect the account being used to write the records and the call to create an account logs in the user
                 this.auth.signOut();
-                // need to get back the FB userid and set it on each comment
-                // TODO : put this function call and function back in place once figure out promises.
-//                let fbu: User = await this.saveTestUserToFirebase(userAndComments.user);
 
-                let newUser = await createUserWithEmailAndPassword(this.auth, userAndComments.user.email, userAndComments.user.password)
+                // need to get back the FB userid and set it on each comment
+                // let newUser = await 
+                createUserWithEmailAndPassword(this.auth, userAndComments.user.email, userAndComments.user.password)
                 .then((userCredential) => {
-                    console.log("TestData Service - saveTestUserToFirebase: Created test user: " + userCredential.user.email + userCredential.user.uid);
+                    console.log("TestData Service - createTestUserAndData(): Created test user: " + userCredential.user.email + " User Id: " + userCredential.user.uid);
                     userAndComments.user.uid = userCredential.user.uid;
                     this.SetUserData(userAndComments.user);
                     const user = userCredential.user;
                     return user;
                 })
+                .then((user) => {
+//                    this.auth.onAuthStateChanged((user)=>{
+//                    this.afAuth.onAuthStateChange.subscribe((user) => {
+                    if (user) {
+                    
+                        userAndComments.comments.forEach(async c => {
+                            c.userId = user.uid; // userAndComments.user.uid;
+                            this.commentService.createComment(c);                    
+                        });
+
+                        userAndComments.entities.forEach(async e => {
+                            e.userId = userAndComments.user.uid;
+                            await this.entitiesService.save(e);                    
+                        });
+
+                        }
+//                    });
+                })
                 .catch((error) => {
                   console.error("TestData Service - saveTestUserToFirebase: Error in creating test user. Error code: " + error.code + " Message: " + error.message);
                   throw error;
-                });
-
-                userAndComments.comments.forEach(async c => {
-                    c.userId = userAndComments.user.uid;
-                    await this.commentService.createComment(c);                    
                 });
             }
 
@@ -121,24 +139,9 @@ export class testDataService {
         }
     }
 
-    // public async saveTestUserToFirebase(user: User) : Promise<User> {
-
-    //   await createUserWithEmailAndPassword(this.auth, user.email, user.password)
-    //   .then((userCredential) => {
-    //       const user = userCredential.user;
-    //       return user;
-    //     })
-    //   .catch((error) => {
-    //     console.error("TestData Service - saveTestUserToFirebase: Error in creating test user. Error code: " + error.code + " Message: " + error.message);
-    //     throw error;
-    //   });
-    // }
-
 
     async SetUserData(user: User) {
         const usersCollection = collection(this.firestore, "testusers");
-        // create a reference to a document in firestore
-//        const userRef = doc(usersCollection, user.uid)
         const userData: User = {
           uid: user.uid,
           email: user.email,

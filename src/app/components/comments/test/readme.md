@@ -1,4 +1,4 @@
-# Comments testing
+# Entities & Comments testing
 
 This folder contains a UI that calls into a service which generates test data, optionally saving that testdata to firebase.
 

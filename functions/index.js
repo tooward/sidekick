@@ -477,6 +477,7 @@ async function saveEntity(entity) {
 } // end saveEntity()
 
 /*** ENTITIES ****/
+
 class entityFoundIn {
     url;
     title;
@@ -518,7 +519,7 @@ class PERSON extends ENTITY {
     constructor() {
         super();
         this.type = 'PERSON';
-        this.collection = "people";
+        this.collection = "entities";
     }
 }
 
@@ -535,7 +536,7 @@ class LOCATION extends ENTITY {
     constructor() {
         super();
         this.type = 'LOCATION';
-        this.collection = "locations";
+        this.collection = "entities";
     }
 
     genericToClass(element){
@@ -565,7 +566,7 @@ class ORGANIZATION extends ENTITY {
     constructor() {
         super();
         this.type = 'ORGANIZATION';
-        this.collection = "organizations";
+        this.collection = "entities";
     }
 }
 
@@ -574,7 +575,7 @@ class CONSUMER_GOOD extends ENTITY {
     constructor() {
         super();
         this.type = 'CONSUMER_GOOD';
-        this.collection = "consumer_goods";
+        this.collection = "entities";
     }
 }
 
@@ -583,9 +584,8 @@ class WORK_OF_ART extends ENTITY {
     constructor() {
         super();
         this.type = 'WORK_OF_ART';
-        this.collection = "artworks";
+        this.collection = "entities";
     }
 }
-
 
 /***  END ENTITIES ***/

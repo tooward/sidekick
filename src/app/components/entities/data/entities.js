@@ -1,15 +1,40 @@
+
 class entityFoundIn {
     url;
     title;
     domain;
+
+    constructor(url, title) {
+        this.url = url;
+        this.title = title;
+
+        if(this.url){
+            this.setDomain();
+        }
+    }
+
+    setDomain() {
+        if(this.url){
+            try{
+              let comurl = new URL(this.url.toString());
+              this.domain = comurl.host ? comurl.host : ""; 
+            }
+            catch(err){
+              console.log("Unable to get domain from url. error: ")
+            }
+          }
+    }
 }
 
 class ENTITY {
+    id;
+    userId;
     type;
     collection;
-    id;
     name;
     wikipedia_url;
+    savedTime;
+    updatedTime;
     foundIn;
 
     // Creates a unique ID for the entity based on the wikipedia URL.
@@ -27,10 +52,20 @@ class ENTITY {
     }
 
     genericToClass(element){
+        this.type = element.type ? element.type : null;
+        this.collection = element.collection ? element.collection : null;
         this.id = element.id ? element.id : null;
         this.name = element.name ? element.name : null;
         this.wikipedia_url = element.wikipedia_url ? element.wikipedia_url : null;
+        this.savedTime = element.savedTime ? element.savedTime : null;
+        this.updatedTime = element.updatedTime ? element.updatedTime : null;
         this.foundIn = element.foundIn ? element.foundIn : null;
+    }
+
+    static plainToClass(element){
+        let entity = new ENTITY();
+        entity.genericToClass(element);
+        return entity;
     }
 
 }
@@ -108,25 +143,4 @@ class WORK_OF_ART extends ENTITY {
     }
 }
 
-export class phone_number extends ENTITY {
-    numbering;
-    national_prefix;
-    area_code;
-    extension;
-
-    constructor() {
-        super();
-        this.type = 'PHONE_NUMBER';
-        this.collection = "entities";
-    }
-
-    genericToClass(entity) {
-        super.genericToClass(entity);
-        this.number = entity.number;
-        this.national_prefix = entity.national_prefix;
-        this.area_code = entity.area_code;
-        this.extension = entity.extension;
-    }
-}
-
-export { ENTITY, PERSON, LOCATION, ORGANIZATION, CONSUMER_GOOD, WORK_OF_ART, phone_number }
+export { ENTITY, PERSON, LOCATION, ORGANIZATION, CONSUMER_GOOD, WORK_OF_ART }

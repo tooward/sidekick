@@ -1,4 +1,4 @@
-import { OComment } from "../data/comment";
+import { OComment } from "../comments/data/comment";
 import { userPagination } from "./userpagination";
 
 export type sortBy = "savedTime" | "domain";

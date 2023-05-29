@@ -7,22 +7,21 @@
             </div>
           </div>
 
-        <div *ngIf="fbcomments && !loading">
-            <div *ngFor="let comment of fbcomments">
-                <app-comment [comment]= comment ></app-comment>
-                <a (click)="delete(comment)">
+        <div *ngIf="entities && !loading">
+            <div *ngFor="let entity of entities">
+                <app-entity [entity]= entity ></app-entity>
+                <a (click)="delete(entity)">
                     <img src="assets/images/delete.svg" alt="delete" height="20" width="20">
                 </a>
             </div>
         </div>
 
-        <div *ngIf="(!fbcomments || (fbcomments.length === 0))  && !loading">
+        <div *ngIf="(!entities || (entities.length === 0))  && !loading">
                 <h2>You haven't saved anything yet.</h2>
-                <div>Go forth and comment!</div>
         </div>
 
         <div class="pagination">
-            <a *ngIf="this.pagination && !this.pagination.disablePrevious" (click)="getCommentsPaginated(null, navdir.back)">
+            <a *ngIf="this.pagination && !this.pagination.disablePrevious" (click)="getEntitiesPaginated(null, navdir.back)">
                 Back <<
             </a>
 
@@ -31,7 +30,7 @@
                         && this.pagination.userPaginationRecord.pagesStartAfterRecord.length > 1">
                 <div *ngFor="let pages of this.pagination.userPaginationRecord.pagesStartAfterRecord; index as i;">
                     <a *ngIf="this.pagination.userPaginationRecord.currentDisplayPage !== i+1"
-                        (click)="getCommentsPaginated(null, null, i+1)">
+                        (click)="getEntitiesPaginated(null, null, i+1)">
                         {{i+1}}
                     </a>
                     <a *ngIf="this.pagination.userPaginationRecord.currentDisplayPage === i+1" class="active">
@@ -40,7 +39,7 @@
                 </div>
             </div>
 
-            <a *ngIf="this.pagination && !this.pagination.disableNext" (click)="getCommentsPaginated(null, navdir.forward)">
+            <a *ngIf="this.pagination && !this.pagination.disableNext" (click)="getEntitiesPaginated(null, navdir.forward)">
                 Next >>
             </a>
         </div>
@@ -60,18 +59,16 @@
             </ul>
         </div>
         
-        <div *ngIf="pagination && fbcomments && !loading" style="clear:both;">
+        <div *ngIf="pagination && entities && !loading" style="clear:both;">
             <h3>Pagination variables: firestorePagination</h3>
             <p>Total Records: {{ this.recordCount }} </p>
             <p>Current page:  {{this.pagination.currentPage}}</p>
             <p>Disable next: {{this.pagination.disableNext}}</p>
             <p>Disable previous: {{this.pagination.disablePrevious}}</p>
-            <p>Total Records: {{this.fbcomments.length}}</p>
+            <p>Total Records: {{this.entities.length}}</p>
             <p>StartAfter this page: {{this.pagination.startAfterRecord}}</p>
         </div>
-
-        -->
-
+-->
         <br>
         <br>
     </div>

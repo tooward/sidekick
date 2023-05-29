@@ -14,6 +14,10 @@
     margin: 0;
     line-height: 1
 }
+.card-image {
+    width: 25px;
+    height: 25px;
+}
 body{
     width: 500px;
 }

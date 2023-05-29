@@ -2,7 +2,7 @@
 // <reference types = '@types/faker' />
 import { Component, OnInit } from '@angular/core';
 import { testDataService } from './testdata.service';
-import { testUserComments } from './testUserComments';
+import { testUserData } from './testUserComments';
 
 @Component({
   selector: 'app-testui',
@@ -12,13 +12,13 @@ import { testUserComments } from './testUserComments';
 
 export class TestuiComponent implements OnInit {
 
-  public testUsersComments: Array<testUserComments> = new Array<testUserComments>();
+  public testUsersComments: Array<testUserData> = new Array<testUserData>();
   constructor( public tds: testDataService ) { }
 
   ngOnInit(): void { }
 
   loadTestData(){
-    this.tds.createTestUserAndComments(12, true)
+    this.tds.createTestUserAndData(12, true)
             .then(userandcomments => this.testUsersComments.push(userandcomments))
             .catch(error => console.log("Error in creating test users: " + error.message));
   }

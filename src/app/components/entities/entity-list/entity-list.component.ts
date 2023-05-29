@@ -5,42 +5,33 @@ import { inject } from '@angular/core';
 import { Auth, User } from '@angular/fire/auth';
 
 // data imports
-import { OComment } from '../data/comment'
-import { CommentService } from '../services/comments.service';
+import { ENTITY } from '../data/entities';
+import { EntitiesService } from '../services/entities.service';
 
 // Firebase related imports
 import { Observable } from 'rxjs';
-import { Firestore, collection, query, orderBy, startAfter, where, collectionData, addDoc, deleteDoc, getDocs, getDoc, doc, docData, Timestamp, CollectionReference, queryEqual, DocumentReference, DocumentData, setDoc, limit, QuerySnapshot } from '@angular/fire/firestore';
+import { Firestore } from '@angular/fire/firestore';
 
-
-// Old imports
 import { firestorePagination, navDirection, sortBy } from '../../pagination/firestorepagination';
 import { userPagination } from '../../pagination/userpagination';
 import { AuthService } from 'src/app/components/usermgt/services/auth.service';
 
 @Component({
-  selector: 'app-commentlist',
-  templateUrl: './comment-list.component.html',
-  styleUrls: ['./comment-list.component.css']
+  selector: 'app-entity-list',
+  templateUrl: './entity-list.component.html',
+  styleUrls: ['./entity-list.component.css']
 })
 
-/*
-  https://github.com/angular/angularfire/blob/master/docs/firestore/documents.md
-  DocumentChangeAction - is always returned in query
-  DocumentChange - 'payload' field of DocumentChangeAction, holds metadata on each document for change type (observable)
-  DocumentSnapshot - 'doc' field of DocumentChange, contains Document id and other metadata for document
-  DocumentData - 'data()' field of DocumentSnapshot, contains data properties
-*/
+/**
+ * EntityListComponent - Displays a list of entities for a user
+ */
+export class EntityListComponent implements OnInit {
 
-export class CommentlistComponent implements OnInit {
-
-  fbcomments: OComment[];
-  isDevMode: boolean = isDevMode();
-//  private commentsCollection: collection<OComment>;
-  comments$: Observable<OComment[]>;
-  pagination: firestorePagination;
+  public isDevMode: boolean = isDevMode();
+  public entities: ENTITY[];
+  public pagination: firestorePagination;
   public navdir = navDirection;
-  loading: boolean = true;
+  public loading: boolean = true;
   private firestore: Firestore = inject(Firestore);
   private auth: Auth = inject(Auth);
   private user: User;
@@ -49,35 +40,35 @@ export class CommentlistComponent implements OnInit {
   public recordCount: number = 0;
  
   constructor(
-    public cservice: CommentService,
+    public service: EntitiesService,
     public authService: AuthService,
     private route: ActivatedRoute
   ){
-    console.log("CommentlistComponent constructor()");
+//    console.log("EntityListComponent constructor()");
   }
 
   ngOnInit(): void {
 
-    console.log("CommentlistComponent ngOnInit()");
+    console.log("EntityListComponent ngOnInit()");
 
     this.auth.onAuthStateChanged((user) => {
         if (user) {
           // get the current state for the user
           this.user = user;
           this.userLoggedIn = true;
-          console.log("CommentListComponent - constructor() User is signed in as: " + user.uid );
+          console.log("EntityListComponent - ngOnInit: User is signed in as: " + user.uid );
 
           // get record count from comments service
-// TDOO - put this back in place but needs debugging
-          // this.cservice.getCommentsCountByUser(user.uid).then(res => { 
+// TODO - put this back in place but needs debugging
+          // this.service.getEntityCountByUser(user.uid).then(res => { 
           //   this.recordCount = res;
           //   this.pagination.totalPages = Math.ceil(this.recordCount / this.pagination.queryRecordsPerPage);
           //   this.pagination.pagesEnabled = true;
-          //   console.log("CommentListComponent - constructor() - record count: " + this.recordCount);
+          //   console.log("EntityListComponent - constructor() - record count: " + this.recordCount);
           // }).catch(err => console.log(err));
         }
         else{
-          console.log("constructor() User is NOT signed in.");
+          console.log("EntityListComponent - constructor(): User is NOT signed in.");
         }
     });
 
@@ -90,7 +81,7 @@ export class CommentlistComponent implements OnInit {
       if(!this.pagination.userPaginationRecord) {
         const user = this.auth.currentUser;
         if (user !== null) {
-          this.cservice.getUserPagination(user.uid).subscribe(res=>
+          this.service.getUserPagination(user.uid).subscribe(res=>
           {
             if (res){
               this.pagination.setUserPaginationRecord(userPagination.plainToClass(res));
@@ -102,18 +93,18 @@ export class CommentlistComponent implements OnInit {
         }
       }
 
-      this.getCommentsPaginated();
+      this.getEntitiesPaginated();
     }
 
   } // ngOnInit()
 
   getComments(orderby?: string) {
-      var res: Observable<OComment[]>;
+      var res: Observable<ENTITY[]>;
 
       const user = this.auth.currentUser;
       if (user !== null) {
-        this.cservice.getComments(user.uid).subscribe(
-          res => this.fbcomments = res,
+        this.service.getEntitiesForUser(user.uid).subscribe(
+          res => this.entities = res,
           err => this.handleFBQueryError(err)
         );
       }
@@ -122,11 +113,11 @@ export class CommentlistComponent implements OnInit {
       }
   }
 
-  delete(comment: OComment){
-    if (confirm("Are you sure you want to delete this comment?")){
-      this.cservice.deleteComment(comment).then(() => {
-        let index = this.fbcomments.indexOf(comment);
-        this.fbcomments.splice(index, 1);
+  delete(entity: ENTITY){
+    if (confirm("Are you sure you want to delete this entity?")){
+      this.service.delete(entity).then(() => {
+        let index = this.entities.indexOf(entity);
+        this.entities.splice(index, 1);
       });
     }
   }
@@ -142,14 +133,13 @@ export class CommentlistComponent implements OnInit {
     Only workaround for number of pages is to keep track of this separately with a function that tracks count.
     This is challenging as need separate counters for separate filters.
   */
-async  getCommentsPaginated(sortByIn?: sortBy, navigationDirection?: number, page?: number){
-    // console.log("CommentListComponent getCommentsPaginated()");
+async  getEntitiesPaginated(sortByIn?: sortBy, navigationDirection?: number, page?: number){
+     console.log("CommentListComponent getCommentsPaginated()");
     // console.log("CommentListComponent getCommentsPaginated() - sortByIn: " + sortByIn);
     // console.log("CommentListComponent getCommentsPaginated() - navigationDirection: " + navigationDirection);
     // console.log("CommentListComponent getCommentsPaginated() - page: " + page);
 
     this.loading = true;
-    // var res: Observable<OComment[]>;
     
     let pageNavigatedTo: number;
 
@@ -173,39 +163,30 @@ async  getCommentsPaginated(sortByIn?: sortBy, navigationDirection?: number, pag
 
     this.auth.onAuthStateChanged(user => {
       if (user != null) {
-        this.cservice.getCommentsPaginated(this.pagination.queryRecordsPerPage, 
-          user.uid, 
+        this.service.getEntitiesPaginated(this.pagination.queryRecordsPerPage, 
+          user.uid,
           this.pagination.startAfterRecord, 
           this.pagination.sortBy)
         .then(
           res => {
-          // console.log("Comment-List - getCommentsPaginated - current page: " + this.pagination.currentPage
-          //           + " - with startAfterRecord: " + JSON.stringify(this.pagination.startAfterRecord)
-          //           + " - returned records: " + res.length);
-
-          // store first record in this page in array allowing to pop them off as move backward or reference in index for paging
-          //                      this.pagination.setThisPage(this.cservice.lastDoc); //res[0]);
-
           if (res.length > 0){
-          // Next page is required only if the additional record over the pagination limit was returned.
-          if (res.length > this.pagination.displayRecordsPerPage){
-          //                          console.log("Comment-List - getCommentsPaginated: Setting next page");
-          this.pagination.setNextPage(this.cservice.lastDoc); // res[res.length - 2]); // take last record of display as calling startafter;
-          }
-          else{
-          //                          console.log("Comment-List - getCommentsPaginated: No next page");
-          this.pagination.noNextPage();
-          }
+            // Next page is required only if the additional record over the pagination limit was returned.
+            if (res.length > this.pagination.displayRecordsPerPage){
+              this.pagination.setNextPage(this.service.lastDoc); // res[res.length - 2]); // take last record of display as calling startafter;
+            }
+            else{
+              this.pagination.noNextPage();
+            }
           }
 
           // don't display first on next page record, if exists
-          this.fbcomments = res.slice(0, (this.pagination.displayRecordsPerPage));
+          this.entities = res.slice(0, (this.pagination.displayRecordsPerPage));
           this.loading=false;
           },
           err => {
-          console.log("Comment-List - getCommentsPaginated - error: " + err);
-          //this.handleFBQueryError(err);
-          this.loading=false;
+            console.log("Entity-List - getCommentsPaginated - error: " + err);
+            //this.handleFBQueryError(err);
+            this.loading=false;
           }
           );
         }
