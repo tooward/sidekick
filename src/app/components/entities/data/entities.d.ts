@@ -32,6 +32,7 @@ declare class ENTITY {
      */
     public genericToClass(element: any): void;
     public static plainToClass(element: any): ENTITY;
+    public genereateId(string): string;
 }
 
 declare class PERSON extends ENTITY {

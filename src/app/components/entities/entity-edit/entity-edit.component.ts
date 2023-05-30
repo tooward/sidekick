@@ -11,7 +11,7 @@ import { ENTITY } from '../data/entities';
 import { EntitiesService } from '../services/entities.service';
 
 // Firebase related imports
-import { Firestore, collection, collectionData, addDoc } from '@angular/fire/firestore';
+import { Firestore } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-entity-edit',
@@ -82,7 +82,6 @@ export class EntityEditComponent implements OnInit {
   async onSubmit(){
     console.log("Entity edit: onSubmit()");
     console.log("Entity edit: Id is: " + this.model.id);
-    console.log("User is : " + JSON.stringify(this.auth.currentUser));
 
     if (this.auth.currentUser !== null && this.model){
       console.log("Entity edit: Id is: " + this.model.id);

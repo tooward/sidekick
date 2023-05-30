@@ -134,7 +134,7 @@ export class EntityListComponent implements OnInit {
     This is challenging as need separate counters for separate filters.
   */
 async  getEntitiesPaginated(sortByIn?: sortBy, navigationDirection?: number, page?: number){
-     console.log("CommentListComponent getCommentsPaginated()");
+     console.log("EntityListComponent getEntitiesPaginated()");
     // console.log("CommentListComponent getCommentsPaginated() - sortByIn: " + sortByIn);
     // console.log("CommentListComponent getCommentsPaginated() - navigationDirection: " + navigationDirection);
     // console.log("CommentListComponent getCommentsPaginated() - page: " + page);
@@ -160,7 +160,7 @@ async  getEntitiesPaginated(sortByIn?: sortBy, navigationDirection?: number, pag
       this.pagination.sortBy = sortByIn;
     }
     this.pagination.setNavigation(pageNavigatedTo, navigationDirection);
-
+  
     this.auth.onAuthStateChanged(user => {
       if (user != null) {
         this.service.getEntitiesPaginated(this.pagination.queryRecordsPerPage, 
@@ -170,6 +170,7 @@ async  getEntitiesPaginated(sortByIn?: sortBy, navigationDirection?: number, pag
         .then(
           res => {
           if (res.length > 0){
+            console.log("EntityListComponent - getEntitiesPaginated() - res.length: " + res.length);
             // Next page is required only if the additional record over the pagination limit was returned.
             if (res.length > this.pagination.displayRecordsPerPage){
               this.pagination.setNextPage(this.service.lastDoc); // res[res.length - 2]); // take last record of display as calling startafter;

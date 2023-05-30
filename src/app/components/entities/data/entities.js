@@ -30,7 +30,7 @@ class ENTITY {
     id;
     userId;
     type;
-    collection;
+    collection="entities";
     name;
     wikipedia_url;
     savedTime;
@@ -39,12 +39,12 @@ class ENTITY {
 
     // Creates a unique ID for the entity based on the wikipedia URL.
     // If there is no wikipedia URL uses GUID generated on the server.
-    genereateId () {
+    genereateId (input) {
         var hash = 0, i, chr;
         if (this.length === 0) return hash;
 
-        for (i = 0; i < this.length; i++) {
-            chr = this.charCodeAt(i);
+        for (i = 0; i < input.length; i++) {
+            chr = input.charCodeAt(i);
             hash = ((hash << 5) - hash) + chr;
             hash |= 0; // Convert to 32bit integer
         }
@@ -57,8 +57,8 @@ class ENTITY {
         this.id = element.id ? element.id : null;
         this.name = element.name ? element.name : null;
         this.wikipedia_url = element.wikipedia_url ? element.wikipedia_url : null;
-        this.savedTime = element.savedTime ? element.savedTime : null;
-        this.updatedTime = element.updatedTime ? element.updatedTime : null;
+        this.savedTime = element.savedTime ? new Date(Date.parse(element.savedTime)) : null;
+        this.updatedTime = element.updatedTime ? new Date (Date.parse(element.updatedTime)) : null;
         this.foundIn = element.foundIn ? element.foundIn : null;
     }
 
@@ -67,7 +67,6 @@ class ENTITY {
         entity.genericToClass(element);
         return entity;
     }
-
 }
 
 class PERSON extends ENTITY {
@@ -113,6 +112,27 @@ class LOCATION extends ENTITY {
             return true;
         else
             return false;
+    }
+}
+
+class phone_number extends ENTITY {
+    numbering;
+    national_prefix;
+    area_code;
+    extension;
+
+    constructor() {
+        super();
+        this.type = 'PHONE_NUMBER';
+        this.collection = "entities";
+    }
+
+    genericToClass(entity) {
+        super.genericToClass(entity);
+        this.number = entity.number ? entity.number : null;
+        this.national_prefix = entity.national_prefix ? entity.national_prefix : null;
+        this.area_code = entity.area_code ? entity.area_code : null;
+        this.extension = entity.extension ? entity.extension : null;
     }
 }
 

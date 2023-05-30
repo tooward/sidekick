@@ -8,9 +8,11 @@
 - Function needs to import the ES6 modules from the extension. Currently it is not able to find the modules. Need to figure out how to do this.
 
 ## Roadmap
+
 - [ ] Move more NLP to in-browser functions where possible. [This](https://blog.logrocket.com/natural-language-processing-node-js/) is a good article introducing various libraries, primarily the [Natural](https://naturalnode.github.io/natural/) library. Note that Firebase is introducing [Python based functions](https://github.com/firebase/firebase-functions-python#) opening up the majority of NLP libraries such as (NLTK](https://github.com/nltk/nltk).
 - [ ] Integreate [wink](https://github.com/winkjs/wink-nlp-utils) for name detection in page without using server posting.
 - [ ] Address idenfiticaction. Good introduction to the various libraries and techniques [here](https://khadkechetan.medium.com/address-extraction-and-parser-with-nlp-4d3db7b9535d).
+- [ ] Move to Google [Auth]( https://firebaseopensource.com/projects/firebase/quickstart-js/auth/chromextension/readme/) and remove the user/password login (along with the website). Looks like can't use the [auth UI](https://github.com/firebase/firebaseui-web) in the extension. Copilot feels need to use the [popup](https://firebase.google.com/docs/auth/web/google-signin#popup-mode) mode.
 
 ## Summary
 

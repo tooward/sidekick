@@ -3,9 +3,8 @@
 A basic implementation of the authentication for Firebase using AngularFire. Currently supports email authentication only.
 
 # TODO
-- Add OAuth for Google and other providers.
-- Isolate into a standalone module.
-- Possibly move to use the firebase javascript self contained system.
+- [ ] Add OAuth for Google and other providers. Use the [Firebase UI](https://github.com/firebase/firebaseui-web) for this.
+- [ ] Isolate into a standalone module.
 
 # Sources
 

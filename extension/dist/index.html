@@ -1,11 +1,11 @@
 <html>
-<head>
-    <title>Save the web</title>
-    <link rel="stylesheet" href="./assets/css/style.css">
-<script defer src="sidekick.bundle.js"></script></head>
-
+    <head>
+        <title>Save the web</title>
+        <link rel="stylesheet" href="./assets/css/style.css">
+    <script defer src="sidekick.bundle.js"></script></head>
 <body>
 
+<!-- Header -->
     <header class="p-3 text-bg-dark">
         <div class="container">
             <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
@@ -17,6 +17,25 @@
           </div>
         </div>
     </header>
+
+<!-- Login -->
+    <div id="login" style="display: none;">
+        <h3>Sign In</h3>
+        <form id="loginForm">
+            <div>
+                <input type="text" id="email" class="formControl" placeholder="Username" #userName required>
+            </div>
+            <div>
+                <input type="password" id="password" class="formControl" placeholder="Password" #userPassword required>
+            </div>
+            <div>
+                <input type="button" id="loginbtn" class="btn btnPrimary" value="Log in">
+            </div>
+        </form>
+        <div>Sign-up on our <a href="coverge.io">website</a></div>
+    </div>
+
+<!-- Extension -->
 
     <div class="row" id="results" style="display: block;">
         <h2>In this page:</h2>

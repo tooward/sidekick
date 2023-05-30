@@ -383,10 +383,15 @@ exports.saveentity = onRequest(async (req, res) => {
 async function saveEntity(entity) {
     try {
         if (entity.id === undefined || entity.id === null || entity.id === ''){
+            entity.savedTime = new Date();
+            entity.updatedTime = new Date();
             await getFirestore().collection(entity.collection).add({ person: JSON.parse(JSON.stringify(entity)) });
             console.log("Saved entity (w/ add method to generate id in FB). type: " + entity.type + " name: " + entity.name);
         }
         else {
+            if (entity.savedTime === undefined || entity.savedTime === null || entity.savedTime === '')
+                entity.savedTime = new Date();
+            entity.updatedTime = new Date();
             // use set to ensure use of the same key
             await getFirestore().collection(entity.collection).doc(entity.id).set( JSON.parse(JSON.stringify(entity)) );
             console.log("Saved entity (w/ set method as id existed already). type: " + entity.type + " id: " + entity.id + " name: " + entity.name);
@@ -482,14 +487,38 @@ class entityFoundIn {
     url;
     title;
     domain;
+
+    constructor(url, title) {
+        this.url = url;
+        this.title = title;
+
+        if(this.url){
+            this.setDomain();
+        }
+    }
+
+    setDomain() {
+        if(this.url){
+            try{
+              let comurl = new URL(this.url.toString());
+              this.domain = comurl.host ? comurl.host : ""; 
+            }
+            catch(err){
+              console.log("Unable to get domain from url. error: ")
+            }
+          }
+    }
 }
 
 class ENTITY {
+    id;
+    userId;
     type;
     collection;
-    id;
     name;
     wikipedia_url;
+    savedTime;
+    updatedTime;
     foundIn;
 
     // Creates a unique ID for the entity based on the wikipedia URL.
@@ -507,10 +536,20 @@ class ENTITY {
     }
 
     genericToClass(element){
+        this.type = element.type ? element.type : null;
+        this.collection = element.collection ? element.collection : null;
         this.id = element.id ? element.id : null;
         this.name = element.name ? element.name : null;
         this.wikipedia_url = element.wikipedia_url ? element.wikipedia_url : null;
+        this.savedTime = element.savedTime ? element.savedTime : null;
+        this.updatedTime = element.updatedTime ? element.updatedTime : null;
         this.foundIn = element.foundIn ? element.foundIn : null;
+    }
+
+    static plainToClass(element){
+        let entity = new ENTITY();
+        entity.genericToClass(element);
+        return entity;
     }
 
 }
@@ -558,6 +597,27 @@ class LOCATION extends ENTITY {
             return true;
         else
             return false;
+    }
+}
+
+class phone_number extends ENTITY {
+    numbering;
+    national_prefix;
+    area_code;
+    extension;
+
+    constructor() {
+        super();
+        this.type = 'PHONE_NUMBER';
+        this.collection = "entities";
+    }
+
+    genericToClass(entity) {
+        super.genericToClass(entity);
+        this.number = entity.number ? entity.number : null;
+        this.national_prefix = entity.national_prefix ? entity.national_prefix : null;
+        this.area_code = entity.area_code ? entity.area_code : null;
+        this.extension = entity.extension ? entity.extension : null;
     }
 }
 

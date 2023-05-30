@@ -1,13 +1,12 @@
 <p>{{entity.name}}</p>
+<p>{{entity.savedTime.toLocaleDateString("en-US")}}</p>
+
+<a [routerLink]="['/entity-edit', entity.id]" routerLinkActive="active">
+    <img src="assets/images/edit.svg" alt="edit" height="20" width="20">
+</a>
 
 <ul>
     <li *ngFor="let fi of entity.found_in; index as i; first as isFirst">
         <a href="{{fi.url}}">{{fi.title}}</a>
     </li>
 </ul>
-
-<p>{{entity.savedTime}}</p>
-
-<a [routerLink]="['/entity-edit', entity.id]" routerLinkActive="active">
-    <img src="assets/images/edit.svg" alt="edit" height="20" width="20">
-</a>

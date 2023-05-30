@@ -8,8 +8,8 @@
         <option value="WORK_OF_ART">Work of art</option>
     </select>
     
-    <input formControlName="name" type="text" class="form-control" id="name" required placeholder="URL" />
-    <input formControlName="wikipedia_url" type="text" class="form-control" id="wikipedia_url" required placeholder="URL" />
+    <input formControlName="name" type="text" class="form-control" id="name" required placeholder="Name" />
+    <input formControlName="wikipedia_url" type="text" class="form-control" id="wikipedia_url" placeholder="Wikipedia URL" />
     <input formControlName="id" type="hidden" id="id" />
 
     <button type="submit" id="button" class="btn btn-success" [disabled]="!entityForm.valid">Save</button>

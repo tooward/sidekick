@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col">
+    <div class="col-6">
 
         <div *ngIf="loading" class="flexbox-parent">
             <div layout="row" layout-align="center center" style="min-height: 300px">
@@ -20,6 +20,7 @@
                 <h2>You haven't saved anything yet.</h2>
         </div>
 
+<!-- Pagination -->
         <div class="pagination">
             <a *ngIf="this.pagination && !this.pagination.disablePrevious" (click)="getEntitiesPaginated(null, navdir.back)">
                 Back <<

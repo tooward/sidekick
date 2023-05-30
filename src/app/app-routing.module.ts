@@ -30,6 +30,7 @@ const routes: Routes = [
   { path: 'comments', component: CommentlistComponent, canActivate: [AuthGuard] },
   { path: 'entity/:id', component: EntityComponent, canActivate: [AuthGuard] },
   { path: 'entity-edit/:id', component: EntityEditComponent, canActivate: [AuthGuard] },
+  { path: 'entity-edit', component: EntityEditComponent, canActivate: [AuthGuard] },
   { path: 'entities', component: EntityListComponent, canActivate: [AuthGuard] },  
   { path: 'test', component: TestuiComponent },
   { path: '', redirectTo: '/home', pathMatch: 'full' },

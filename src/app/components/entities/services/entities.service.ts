@@ -68,15 +68,27 @@ export class EntitiesService {
         entity.savedTime = new Date(Date.now());
       }
 
+      if (!entity.updatedTime){
+        entity.updatedTime = new Date(Date.now());
+      }
+
       try {
-          if (entity.id === undefined || entity.id === null || entity.id === ''){
+          if ((entity.id === undefined || entity.id === null || entity.id === '') 
+          && (entity.wikipedia_url === undefined || entity.wikipedia_url === null || entity.wikipedia_url === '')){
             console.log("Saving entity (w/ add method to generate id in FB). type: " + entity.type + " name: " + entity.name);
             return addDoc(collection(this.firestore, this.entitiesCollectionReference), JSON.parse( JSON.stringify(entity)));
           }
           else {
-              // use set to ensure use of the same key
-              console.log("Saving entity (w/ set method as id existed already). type: " + entity.type + " id: " + entity.id + " name: " + entity.name);
-              return setDoc(doc(this.firestore, this.entitiesCollectionReference, entity.id), JSON.parse( JSON.stringify(entity)));
+            if ((entity.id === undefined || entity.id === null || entity.id === '') 
+            && (entity.wikipedia_url !== undefined || entity.wikipedia_url !== null || entity.wikipedia_url !== '')){ 
+              // use wikipedia url as id
+              entity.id = entity.genereateId(entity.wikipedia_url).toString();
+              console.log("Entity id set to generated id: " + entity.id);
+            }
+            // use set to ensure use of the same key
+            console.log("Saving entity (w/ set method as id exists). type: " + entity.type + " id: " + entity.id + " name: " + entity.name);
+            console.log("Entity: " + JSON.stringify(entity));
+            return setDoc(doc(this.firestore, this.entitiesCollectionReference, entity.id), JSON.parse( JSON.stringify(entity)));
           }
       }
       catch(err){
@@ -213,9 +225,10 @@ export class EntitiesService {
     * @param recordsPerPage
     * @returns
     * 
-  */
+    */
   async getEntitiesPaginated(recordsPerPage: number, userId: string, startAfterRecord?: any, sortby?: string) : Promise<ENTITY[]> {
 
+    console.log("EntitiesService getEntitiesPaginated() - userId: " + userId);
     let orderby: string;
     let results: ENTITY[] = [];
 
@@ -229,10 +242,11 @@ export class EntitiesService {
     const q = query(collection(this.firestore, this.entitiesCollectionReference), 
                     where("userId", "==", userId),
                     orderBy(orderby),
-                    startAfter(startAfterRecord ? startAfterRecord : 0), //startAfterRecord ? startAfterRecord.id : 0),
+                    startAfter(startAfterRecord ? startAfterRecord : 0),
                     limit(recordsPerPage));
 
     const querySnapshot = await getDocs(q);
+    console.log("EntitiesService getEntitiesPaginated() - querySnapshot.size: " + querySnapshot.size);
     this.lastDoc = querySnapshot.docs[querySnapshot.docs.length - 2]; // want second to last record for start after
 
     results = querySnapshot.docs.map(a => {

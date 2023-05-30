@@ -1,5 +1,7 @@
 "use strict";
 import { PERSON, LOCATION, ORGANIZATION, CONSUMER_GOOD, WORK_OF_ART } from './entities.js';
+import { getAuth, connectAuthEmulator, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { initializeApp } from "firebase/app";
 const Mustache = require('mustache');
 import 'jquery';
 // Import our custom CSS
@@ -7,9 +9,66 @@ import '../assets/scss/styles.scss'
 // Import all of Bootstrap's JS
 import * as bootstrap from 'bootstrap'
 
-console.log("popup.js loaded");
-var entities = new Array(); // global scope
-processPage();
+// Variables
+    const firebaseConfig = {
+        projectId: 'covergedev',
+        appId: '1:357303688739:web:545fac01e1f936efc7db96',
+        storageBucket: 'covergedev.appspot.com',
+        locationId: 'us-central',
+        apiKey: 'AIzaSyBFF7-SbqVhFwKo468P-RTdrLrLRzqpHCE',
+        authDomain: 'covergedev.firebaseapp.com',
+        messagingSenderId: '357303688739',
+    };
+    var user;
+    var signedIn = false;
+
+// Setup
+    console.log("popup.js loaded");
+    var auth;
+    var app;
+    document.getElementById("loginbtn").addEventListener('click', function () {login()});
+
+// Initialize Firebase
+    try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        connectAuthEmulator(auth, "http://localhost:9099");
+    }
+    catch (err){
+        console.log("Error in getAuth or initializeApp. " + err.message);
+    }
+
+    document.onreadystatechange = () => {
+        if (document.readyState === 'complete') {
+            console.log("Document ready");
+
+        }
+      };
+
+    var entities = new Array(); // global scope
+
+    // if not logged in then display login div
+    onAuthStateChanged(auth, (ruser) => {
+        console.log("onAuthStateChanged");
+        if (ruser) {
+            console.log("User signed in");
+            user = ruser;
+            signedIn = true;
+            document.getElementById("login").style.display = "none";
+            document.getElementById("results").style.display = "block";
+            processPage();
+        } else {
+            console.log("User not signed in");
+            signedIn = false;
+            document.getElementById("login").style.display = "block";
+            document.getElementById("results").style.display = "none";
+        }
+    });
+
+    // logged in then hide the login div and process the page
+    if (signedIn){
+        processPage();
+    }
 
 // main function for processing the page and displaying results
 async function processPage(){
@@ -32,8 +91,26 @@ async function processPage(){
     });// End of chrome.storage.local.get
 } // End of processPage()
 
+function login(){
+    console.log("Logging in");
+    let email = document.getElementById("email").value;
+    console.log("Email: " + email);
+    let password = document.getElementById("password").value;
+    console.log("Password: " + password);
+    const auth = getAuth(app);
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        this.user = userCredential.user;
+        document.getElementById("login").style.display = "none";
+        document.getElementById("results").style.display = "block";
+      })
+      .catch((error) => {
+        console.log("Sign-in error: " + error.code + " " + error.message); 
+      });
+}
+
 function addListeners(id){
-    console.log("Adding listener for: " + id);
+//    console.log("Adding listener for: " + id);
     document.getElementById(id).addEventListener('click', function () {saveEntity(id)});
 }
 
@@ -51,7 +128,7 @@ function getPostToFunction(result) {
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
             console.log("--- Response status: " + xhr.status);
-            console.log("Response text: \n" + xhr.responseText);
+//            console.log("Response text: \n" + xhr.responseText);
 
             if (xhr.status == 200) {
                 console.log("#4. Results received from cloud functions");
@@ -157,6 +234,7 @@ function saveEntity(id){
     // get the entity from the entities array
     let entity = entities.find(x => x.id === id);
     if (entity) {
+        entity.userId = user.uid;
         console.log("Saving entity: " + entity.name);
         console.log("Entity data: " + JSON.stringify(entity));
 
