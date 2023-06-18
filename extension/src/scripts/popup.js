@@ -8,6 +8,11 @@ import 'jquery';
 import '../assets/scss/styles.scss'
 // Import all of Bootstrap's JS
 import * as bootstrap from 'bootstrap'
+// Load wink-nlp package.
+const winkNLP = require( 'wink-nlp' );
+// Load english language model — light version.
+const model = require( 'wink-eng-lite-web-model' );
+var nlpu = require( 'wink-nlp-utils' );
 
 // Variables
     const firebaseConfig = {
@@ -47,7 +52,7 @@ import * as bootstrap from 'bootstrap'
 
     var entities = new Array(); // global scope
 
-    // if not logged in then display login div
+// login - if not logged in then display login div
     onAuthStateChanged(auth, (ruser) => {
         console.log("onAuthStateChanged");
         if (ruser) {
@@ -78,18 +83,48 @@ async function processPage(){
     chrome.storage.local.get(['pageHTML'], (result) => {
         if (result){
             console.log("#1. Results retrived from local storage");
-            console.log("--- Page: " + result.pageHTML.pageTitle);
+//            console.log("--- Page: " + result.pageHTML.pageTitle);
 
+            /** Instantiate winkNLP **/
+//            processEntitiesWink(result.pageHTML.pageBody);
+
+            /** Server Call to Google APIs **/
             // send html to cloud function for NLP processing
             // TODO - Uses a POST with URL paramater request. Need to switch to post as page size is often too large for URL parameters
-            results = getPostToFunction(result);
-            return results;
+           results = getPostToFunction(result);
+           return results;
         }
         else {
             console.log("--- No results found");
         }
     });// End of chrome.storage.local.get
 } // End of processPage()
+
+function processEntitiesWink(text) {
+
+    // try names with wink nlp utilities
+    // let testStr = 'Dr. Sarah Connor M. Tech., PhD. - AI. Mr. John Doe, B. Tech. - CS. Ms. Jane Doe, M. Tech. - CS.';
+    // let sentences = nlpu.string.sentences(testStr);
+    // sentences.forEach(element => {
+    //     let name = nlpu.string.extractPersonsName(element);        
+    //     console.log("\nWinkNLP NAME: " + name);
+    //     console.log("\nWinkNLP sentence: " + element);
+    // });
+
+    // process with wink nlp
+    const nlp = winkNLP( model );
+    // Obtain "its" helper to extract item properties.
+    const its = nlp.its;
+    const doc = nlp.readDoc(text);
+    console.log("WinkNLP: " + doc.entities().out(its.type));
+    // doc.entities()
+    //     .each((e) => {
+    //       // Extract type of entity using .out() with “its.value”
+    //       // as input parameter.
+    //       if (e.out(its.type) === 'DATE')
+    //         console.log(e.parentSentence().out() + ' => ' + e.out() + ' => ' + e.out(its.type) + "\n");
+    //     });
+} // End of processEntitiesWink()
 
 function login(){
     console.log("Logging in");
@@ -107,7 +142,7 @@ function login(){
       .catch((error) => {
         console.log("Sign-in error: " + error.code + " " + error.message); 
       });
-}
+} // End of login()
 
 function addListeners(id){
 //    console.log("Adding listener for: " + id);

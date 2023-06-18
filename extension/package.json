@@ -15,7 +15,10 @@
     "firebase": "^9.22.0",
     "jquery": "^3.7.0",
     "mustache": "^4.2.0",
-    "popper.js": "^1.16.1"
+    "popper.js": "^1.16.1",
+    "wink-eng-lite-web-model": "^1.5.0",
+    "wink-nlp": "^1.14.0",
+    "wink-nlp-utils": "^2.1.0"
   },
   "devDependencies": {
     "clean-webpack-plugin": "^4.0.0",

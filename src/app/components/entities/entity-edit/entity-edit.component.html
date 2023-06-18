@@ -1,17 +1,28 @@
-<form *ngIf="entityForm" (ngSubmit)="onSubmit()" [formGroup]="entityForm" autocomplete="off">
+<form *ngIf="entityForm" (ngSubmit)="onSubmit()" [formGroup]="entityForm" autocomplete="off" role="form">
 
-    <select formControlName="type" class="form-control" id="type" required placeholder="URL" >
-        <option value="PERSON">Person</option>
-        <option value="LOCATION">Place</option>
-        <option value="ORGANIZATION">Organization</option>
-        <option value="CONSUMER_GOOD">Consumer good</option>
-        <option value="WORK_OF_ART">Work of art</option>
-    </select>
-    
-    <input formControlName="name" type="text" class="form-control" id="name" required placeholder="Name" />
-    <input formControlName="wikipedia_url" type="text" class="form-control" id="wikipedia_url" placeholder="Wikipedia URL" />
+    <div class="form-group">
+        <label for="type">Type</label>
+        <select formControlName="type" class="form-control" id="type" required placeholder="URL" >
+            <option value="PERSON">Person</option>
+            <option value="LOCATION">Place</option>
+            <option value="ORGANIZATION">Organization</option>
+            <option value="CONSUMER_GOOD">Consumer good</option>
+            <option value="WORK_OF_ART">Work of art</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="name">Name</label>
+        <input formControlName="name" type="text" class="form-control" id="name" required placeholder="Name" />
+    </div>
+
+    <div>
+        <label for="wikipedia_url">Wikipedia URL</label>
+        <input formControlName="wikipedia_url" type="text" class="form-control" id="wikipedia_url" placeholder="Wikipedia URL" />
+    </div>
+
     <input formControlName="id" type="hidden" id="id" />
 
-    <button type="submit" id="button" class="btn btn-success" [disabled]="!entityForm.valid">Save</button>
+    <button type="submit" id="button" class="btn btn-success" [disabled]="!entityForm.valid" style="margin-top: 10px;">Save</button>
 
 </form>

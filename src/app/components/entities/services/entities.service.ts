@@ -12,16 +12,13 @@ import { ENTITY } from '../data/entities';
 export class EntitiesService {
   /**
   * Service for managing entities in Firestore
-  * TODO: Add error handling for Firestore error codes.
-    - Esclate these errors back to admin: "deadline-exceeded" | "internal" | "resource-exhausted" | "failed-precondition"
-    - Handle these errors: "invalid-argument" | "not-found" | "already-exists" | "permission-denied"  | "out-of-range" | "unauthenticated"
-    -  Retry on these errors: "unavailable" | "data-loss" 
   */
 
   public entities$: Observable<ENTITY[]>;
   public entitiesCollectionReference: string = 'entities';
   public firestore: Firestore = inject(Firestore);
   public lastDoc: any;
+
 
   /**
    * 
@@ -235,7 +232,17 @@ export class EntitiesService {
     if (!sortby){
       orderby = firestorePagination.defaultSort;
     }
-    else{
+    // export enum entitySortBy {
+    //   name = 'name',
+    //   type = 'type',
+    //   savedTime = 'savedTime',
+    //   updatedTime = 'updatedTime'
+    // }
+    
+    // else if (!Object.values<string>(entitySortBy).includes(sortby)) {
+    //   orderby = sortby;
+    // }
+    else {
       orderby = sortby;
     }
 
